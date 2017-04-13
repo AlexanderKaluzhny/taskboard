@@ -45,6 +45,6 @@ redis>=2.10.5
 
 
 
-
-
-# Your custom requirements go here
+djangorestframework==3.6.2
+django-bootstrap-pagination==1.6.2
+django-filter==1.0.2

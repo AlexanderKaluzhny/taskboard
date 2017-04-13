@@ -1,0 +1,17 @@
+.task-list-page-header {
+  margin-left: -30px !important;
+}
+
+.task-list-page-header .pagination {
+  margin: 0px 0px 0px 0px !important;
+}
+
+.task-list-page-header {
+  padding-bottom: 20px;
+}
+
+.task-list {
+  padding-left: 0px !important;
+  max-height: 75vh;
+  overflow: auto;
+}

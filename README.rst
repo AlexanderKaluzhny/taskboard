@@ -1,7 +1,7 @@
 Task Board
 ==========
 
-Task Board project. List of tasks. UI. Capability to edit tasks.
+Test assignment. Task Board project. List of tasks. UI. Capability to edit tasks.
 
 .. image:: https://img.shields.io/badge/built%20with-Cookiecutter%20Django-ff69b4.svg
      :target: https://github.com/pydanny/cookiecutter-django/

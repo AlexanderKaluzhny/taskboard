@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+
+{% load staticfiles %}
+{% load bootstrap_pagination %}
+
+{% block css %}
+  {{ block.super }}
+  <link href="{% static 'css/task-list.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+  <div class="row task-list-page-header">
+    <div class="col-md-8">
+      {% if paginator %}
+      {% bootstrap_paginate paginator.page range=10 %}
+      {% endif %}
+    </div>
+    <div class="col-md-3">
+    </div>
+    <div class="col-md-1">
+      {% if filter_form %}
+      <button style="float: right; " data-toggle="modal" data-target="#filtersModal"
+              class="btn btn-default">
+        <span class="glyphicon glyphicon-wrench" aria-hidden="true"></span>
+        Search
+      </button>
+    </div>
+    {% endif %}
+  </div>
+
+  <div class="row">
+    <div class="col-md-12 task-list">
+      <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+        {% for task in results %}
+          <div class="panel panel-default task-list-item" data-id="{{ task.id }}">
+            <div class="panel-heading" role="tab" id="task-heading-{{ forloop.counter }}">
+              <h4 class="panel-title">
+                <div class="row">
+                  <div class="col-md-8">
+                    <a role="button" data-toggle="collapse" data-parent="#accordion" href="#task-data-{{ forloop.counter }}" aria-expanded="false" aria-controls="task-data-{{ forloop.counter }}">
+                      {{ task.name }} - {{ task.created_by_username }} - {{ task.accomplished_by }}
+                    </a>
+                  </div>
+                  <div class="col-md-1">
+                    <span class="status-label label label-primary">{{ task.status }}</span>
+                  </div>
+                  <div class="col-md-3">
+                    <div class="control-buttons">
+                      {% if user.pk == task.created_by %}
+                        <button id="edit-button" class="submit btn btn-default">Edit</button>
+                        <button id="delete-button" class="submit btn btn-default">Delete</button>
+                      {% endif %}
+                      <button id="markdone-button" class="submit btn btn-default">Mark as Done</button>
+                    </div>
+                  </div>
+                </div>
+              </h4>
+            </div>
+            <div id="task-data-{{ forloop.counter }}" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="task-heading-{{ forloop.counter }}">
+              <div class="panel-body">
+                  {{ task.description }}
+              </div>
+            </div>
+          </div> <!-- <div class="panel panel-default -->
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  {% if filter_form %}
+    {{ filter_form }}
+  {% endif %}
+
+{% endblock content %}
+
+{% block javascript %}
+{{ block.super }}
+  <script>$('#accordion .collapse').collapse('hide');</script>
+{% endblock %}
