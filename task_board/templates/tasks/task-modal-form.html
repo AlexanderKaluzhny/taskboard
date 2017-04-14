@@ -24,7 +24,7 @@
 </div>
 
 <script type="text/html" id="task-editing-form-template">
-  <form class="task center-block" action="" enctype="multipart/form-data" method="post">
+  <form id="task-editing-form" class="center-block" action="{% url 'api-v1:task-update' '26' %}" enctype="multipart/form-data" method="post">
     <div id="task-form-fields">
       {% csrf_token %}
       <div id="div_id_name" class="form-group"><label for="id_name" class="control-label  requiredField">
@@ -51,7 +51,7 @@
 
     <div class="form-group row">
       <div class="controls col-md-12">
-        <button id="send" class="btn btn-primary">Apply</button>
+        <button id="submit" class="btn btn-primary" type="submit">Apply</button>
         <button id="cancel" class="btn btn-default">Cancel</button>
       </div>
     </div>

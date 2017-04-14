@@ -2,9 +2,9 @@ from braces.views import LoginRequiredMixin
 
 from django_filters.rest_framework import DjangoFilterBackend
 
-from rest_framework.generics import ListCreateAPIView
+from rest_framework.generics import ListCreateAPIView, UpdateAPIView
 from rest_framework.renderers import BrowsableAPIRenderer, JSONRenderer, TemplateHTMLRenderer
-from rest_framework.permissions import IsAuthenticatedOrReadOnly
+from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
 from rest_framework.pagination import PageNumberPagination
 from rest_framework import filters
 
@@ -68,11 +68,22 @@ class TaskListCreateView(LoginRequiredMixin, ListCreateAPIView):
     pagination_class = PaginationSettings
 
     renderer_classes = (ListViewTemplateRenderer, JSONRenderer, BrowsableAPIRenderer,)
-    permission_classes = (IsAuthenticatedOrReadOnly, )
+    permission_classes = (IsAuthenticatedOrReadOnly,)
 
     filter_backends = (filters.SearchFilter, DjangoFilterBackend)
     search_fields = ['name', 'description']
     filter_fields = ['status']
+
+    def get_queryset(self):
+        # prefetch the User related information
+        return Task.objects.all().select_related()
+
+
+class TaskUpdateView(UpdateAPIView):
+    # queryset = Task.objects.all()
+    serializer_class = TaskSerializer
+    renderer_classes = (JSONRenderer,)
+    permission_classes = (IsAuthenticated,)
 
     def get_queryset(self):
         # prefetch the User related information

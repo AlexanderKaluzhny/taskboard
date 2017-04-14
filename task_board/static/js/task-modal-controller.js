@@ -1,5 +1,45 @@
 $(function() {
 
+  $.ajaxPrefilter(function(settings, originalOptions, xhr) {
+      var csrftoken;
+      if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+          // Send the token to same-origin, relative URLs only.
+          // Send the token only if the method warrants CSRF protection
+          // Using the CSRFToken value acquired earlier
+          csrftoken = getCookie('csrftoken');
+          xhr.setRequestHeader('X-CSRFToken', csrftoken);
+      }
+  });
+
+  function serializeForm(form) {
+      return _.object(_.map(form.serializeArray(), function(item) {
+          // Convert object to tuple of (name, value)
+          return [item.name, item.value];
+      }));
+  }
+
+  var TaskRequest = {
+    patch: function(url, data, onSuccessHandler, onErrorHandler) {
+      $.ajax({
+        "type": "PATCH",
+        "dataType": "json",
+        "url": url,
+        "data": data,
+        context: this,
+        success: $.proxy(this.onRequestSuccess, this, onSuccessHandler),
+        error: $.proxy(this.onRequestFailed, this, onErrorHandler),
+      });
+    },
+    onRequestSuccess: function(onSuccessHandler, data, textStatus, jqXHR) {
+      onSuccessHandler(data);
+    },
+    onRequestFailed: function(onErrorHandler, xhr, textStatus, error) {
+      if (xhr.status == 400) {} else if (xhr.status == 500) {}
+      onErrorHandler(error);
+      console.log(error);
+    },
+  }
+
   var TaskModalDialogTemplateRenderer = {
     placeToRender: '.task-form-wrapper',
 
@@ -23,20 +63,31 @@ $(function() {
 
   var TaskEditingForm = {
     formTemplate: '#task-editing-form-template',
+    formSelector: '#task-editing-form',
     submitButtonSelector: '#submit',
     cancelButtonSelector: '#cancel',
+    submitUrl: ['/tasks/', 'TASK ID HERE', '/'],
 
-    onSubmitForm: function(event) {
+    composeSubmitUrl: function(task) {
+      var url = TaskEditingForm.submitUrl;
+      url[1] = task.id;
+      return url.join('');
+    },
 
+    onSubmitForm: function(task, event) {
+      event.preventDefault();
+      var $form = $(event.currentTarget);
+      var form_data = serializeForm($form);
+      // TODO: remove {% url 'api-v1:task-update' '26' %} 
+      var url = $form[0].action; // TaskEditingForm.composeSubmitUrl(task);
+      TaskRequest.patch(url, form_data);
     },
     onCancelForm: function(task) {
       TaskInformationForm.render(task);
     },
 
     assignButtonHandlers: function(task) {
-      $(this.submitButtonSelector).click(function(event) {
-        event.preventDefault();
-      });
+      $(this.formSelector).on('submit', $.proxy(this.onSubmitForm, this, task));
       $(this.cancelButtonSelector).click(
         $.proxy(this.onCancelForm, this, task)
       );
