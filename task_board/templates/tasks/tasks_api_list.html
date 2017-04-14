@@ -30,9 +30,7 @@
 
 <div class="row">
   <div class="col-md-12 task-list">
-    <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
       <table class="table table-bordered">
-
         <tbody>
         <tr class="active">
           <th class="text-center">Name</th>
@@ -41,41 +39,36 @@
           <th class="text-center">Actions</th>
         </tr>
         {% for task in results %}
-        <tr class="clickable">
-          <td class="col-md-7">
-            <a role="button" data-toggle="collapse" data-parent="#accordion" href="#task-data-{{ forloop.counter }}"
-               aria-expanded="false" aria-controls="task-data-{{ forloop.counter }}">
+        <tr class="task-list-item" id="task-id-{{ task.id }}" data-id="{{ task.id }}" data-name="{{ task.name }}" data-created-by-name="{{ task.created_by_username }}"
+              data-description="{{ task.description }}" data-accomplished-by="{{ task.accomplished_by }}"
+              data-status="{{ task.status }}">
+          <td class="col-md-6">
+            <a class="task-dialog-toggler" role="button" href="#task-data-{{ forloop.counter }}" data-toggle="modal"
+                      data-target="#task-modal-form">
               {{ task.name }}
             </a>
           </td>
-          <td class="col-md-1 text-center">
+          <td class="col-md-2 text-center">
             {{ task.created_by_username }}
           </td>
-          <td class="col-md-1 text-center">
+          <td class="col-md-2 text-center">
             <span class="status-label label label-primary">{{ task.status }}</span>
             {{ task.accomplished_by }}
           </td>
-          <td class="col-md-3 text-center">
+          <td class="col-md-2 text-center">
             <div class="control-buttons">
               {% if user.pk == task.created_by %}
-              <button id="edit-button" class="submit btn btn-default">Edit</button>
-              <button id="delete-button" class="submit btn btn-default">Delete</button>
+              <button id="edit-button" class="submit btn btn-default">E</button>
+              <button id="delete-button" class="submit btn btn-default">D</button>
               {% endif %}
-              <button id="markdone-button" class="submit btn btn-default">Mark as Done</button>
+              <button id="markdone-button" class="submit btn btn-default">M</button>
             </div>
-          </td>
-        </tr>
-        <tr id="task-data-{{ forloop.counter }}" class="panel-collapse collapse in" role="tabpanel"
-            aria-labelledby="task-heading-{{ forloop.counter }}">
-          <td>
-            {{ task.description }}
           </td>
         </tr>
 
         {% endfor %}
         </tbody>
       </table>
-    </div>
   </div>
 </div>
 
@@ -83,9 +76,12 @@
 {{ filter_form }}
 {% endif %}
 
+{% include 'tasks/task-modal-form.html' %}
+
 {% endblock content %}
 
 {% block javascript %}
 {{ block.super }}
-<script>$('#accordion .collapse').collapse('hide');</script>
+<script src="{% static 'js/underscore-min.js' %}"></script>
+<script src="{% static 'js/task-modal-controller.js' %}"></script>
 {% endblock %}

@@ -1,0 +1,130 @@
+{% load staticfiles %}
+{% load crispy_forms_tags %}
+
+<div class="modal fade" id="task-modal-form" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+          aria-hidden="true">&times;</span></button>
+        <!--<h4 class="modal-title" id="myModalLabel">Task</h4>-->
+      </div>
+      <div class="modal-body">
+        <div class="task-submit-status center-block"></div>
+        <div class="task-form-wrapper">
+          <!-- <div class="row">
+            <div id="task-name" class="col-md-7">
+              <b>Name:</b>
+              {{ results.0.name }}
+            </div>
+            <div class="col-md-2"></div>
+            <div class="col-md-3">
+              <div class="control-buttons">
+                {% if user.pk == results.0.created_by %}
+                <button id="edit-button" class="submit btn btn-default">E</button>
+                <button id="delete-button" class="submit btn btn-default">D</button>
+                {% endif %}
+                <button id="markdone-button" class="submit btn btn-default">M</button>
+              </div>
+            </div>
+          </div>
+          <hr>
+          <div class="row">
+            <div id="task-general-info" class="col-md-3">
+              <b>Created by:</b>
+              {{ results.0.created_by_username }}
+            </div>
+          </div>
+          <div class="row">
+            <div id="task-status" class="col-md-3">
+              <b>Status: </b> <span class="status-label label label-primary">Not Done</span>
+            </div>
+          </div>
+          <hr>
+          <div class="row">
+            <div id="task-description" class="col-md-12">
+              <b>Description:</b>
+              {{ results.0.description }}
+            </div>
+          </div> -->
+        </div>
+      </div>
+
+      <div class="modal-footer">
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="text/html" id="task-editing-form-template">
+  <form class="task center-block" action="" enctype="multipart/form-data" method="post">
+    <div id="task-form-fields">
+      {% csrf_token %}
+    </div>
+
+    <div class="form-group row">
+      <div class="controls col-md-12">
+        <button id="send" class="btn btn-primary" type="submit">Send</button>
+        <button id="cancel" class="btn btn-default" data-dismiss="modal">Cancel</button>
+      </div>
+    </div>
+  </form>
+</script>
+
+<script type="text/html" id="shared-snippet-info-template">
+  <div id="shared-snippets-notification-<%= id %>">
+  <span class="share-label label label-success"><%= snippetsNumber %> Snippet shared!</span>
+    <div class="row">
+      <div class="col-md-12">
+        <p class="share-label">The link for sharing with friends:</p>
+        <input type="url" id="shared-group-url" value="<%= sharedGroupFullUrl %>" class="form-control" readonly="readonly" placeholder="">
+          </br>
+        <button id="close-share-notification" class="btn btn-primary col-md-6 col-md-offset-3">Okay</button>
+      </div>
+    </div>
+  </div>
+</script>
+
+<!-- accomplishedBy : "None"
+createdByName : "alex"
+description : "Cras sit amet nibh libero, in gravida nulla. Nulla vel metus scelerisque ante sollicitudin commodo. "
+id : 26
+name : "Task number 15"
+status : 0 -->
+
+<script type="text/html" id="task-information-template">
+    <div class="row">
+      <div id="task-name" class="col-md-7">
+        <b>Name:</b>
+        <%= name %>
+      </div>
+      <div class="col-md-2"></div>
+      <div class="col-md-3">
+        <div class="control-buttons">
+          <button id="edit-button" class="submit btn btn-default">E</button>
+          <button id="delete-button" class="submit btn btn-default">D</button>
+          <button id="markdone-button" class="submit btn btn-default">M</button>
+        </div>
+      </div>
+    </div>
+    <hr>
+    <div class="row">
+      <div id="task-general-info" class="col-md-12">
+        <b>Created by:</b>
+        <%= createdByName %>
+      </div>
+    </div>
+    <div class="row">
+      <div id="task-status" class="col-md-12">
+        <b>Status: </b> <span class="status-label label label-primary"><%= status %> Not Done</span>
+      </div>
+    </div>
+    <hr>
+    <div class="row">
+      <div id="task-description" class="col-md-12">
+        <b>Description:</b>
+        <%= description %>
+      </div>
+    </div>
+</script>
