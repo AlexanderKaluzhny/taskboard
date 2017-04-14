@@ -62,7 +62,6 @@ class PaginationSettings(PageNumberPagination):
 
 
 class TaskListCreateView(LoginRequiredMixin, ListCreateAPIView):
-    queryset = Task.objects.all()
     serializer_class = TaskSerializer
     pagination_class = PaginationSettings
 
@@ -72,3 +71,7 @@ class TaskListCreateView(LoginRequiredMixin, ListCreateAPIView):
     filter_backends = (filters.SearchFilter, DjangoFilterBackend)
     search_fields = ['name', 'description']
     filter_fields = ['status']
+
+    def get_queryset(self):
+        # prefetch the User related information
+        return Task.objects.all().select_related()
