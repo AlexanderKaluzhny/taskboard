@@ -21,27 +21,73 @@ $(function() {
     }
   };
 
+  var TaskEditingForm = {
+    formTemplate: '#task-editing-form-template',
+    submitButtonSelector: '#submit',
+    cancelButtonSelector: '#cancel',
+
+    onSubmitForm: function(event) {
+
+    },
+    onCancelForm: function(task) {
+      TaskInformationForm.render(task);
+    },
+
+    assignButtonHandlers: function(task) {
+      $(this.submitButtonSelector).click(function(event) {
+        event.preventDefault();
+      });
+      $(this.cancelButtonSelector).click(
+        $.proxy(this.onCancelForm, this, task)
+      );
+    },
+
+    render: function(task) {
+      TaskModalDialogTemplateRenderer.render(TaskEditingForm.formTemplate, task)
+      this.assignButtonHandlers(task);
+    },
+  }
+
+  var TaskInformationForm = {
+    taskInformationTemplateName: '#task-information-template',
+    controlButtonSelectors: {
+      'edit': '#edit-button'
+    },
+
+    assignButtonHandlers: function(task) {
+      // assign Edit button handler of the Task information form
+      $('.control-buttons').on('click', this.controlButtonSelectors['edit'],
+        $.proxy(TaskEditingForm.render, TaskEditingForm, task));
+    },
+
+    render: function(task) {
+      // render the TaskInformationForm template
+      TaskModalDialogTemplateRenderer.render(this.taskInformationTemplateName, task);
+      // assign button handlers for rendered fragment
+      this.assignButtonHandlers(task);
+    }
+  }
+
   var TaskModalDialogController = {
     taskListItemSelector: '.task-list-item',
-    taskListItemDialogToggler: '.task-dialog-toggler',
-    taskInformationTemplateName: '#task-information-template',
+    taskListItemDialogToggler: '.task-link-dialog-toggler',
 
-    onTaskDialogToggle: function(event) {
-      // get the item data
-      // render into template
-      // put rendered template into the modal dialog
-      // propagete event to open modal dialog
+    onTaskListEditButtonClick: function(event) {
+      // render edit form
+      // TODO: setup toggling of dialog in html
+    },
 
+    onTaskListItemDialogToggle: function(event) {
       // get the current task data from event
       var $button = $(event.currentTarget);
       var $currentTaskItem = $(this).parents(".task-list-item");
       var task = $currentTaskItem.data();
-      // render into template
-      TaskModalDialogTemplateRenderer.render(TaskModalDialogController.taskInformationTemplateName, task);
+
+      TaskInformationForm.render(task);
     },
 
     init: function() {
-      $(this.taskListItemDialogToggler).on('click', TaskModalDialogController.onTaskDialogToggle);
+      $(this.taskListItemDialogToggler).on('click', this.onTaskListItemDialogToggle);
     },
   };
 

@@ -9,6 +9,7 @@ from rest_framework.pagination import PageNumberPagination
 from rest_framework import filters
 
 from task_board.tasks.models import Task
+from task_board.tasks.forms import TaskForm
 from task_board.tasks.serializers import TaskSerializer
 
 
@@ -53,6 +54,7 @@ class ListViewTemplateRenderer(TemplateHTMLRendererBase, BrowsableAPIRenderer):
         context['paginator'] = paginator
         context['filter_form'] = self.get_filter_form(data, view, request)
         context['user'] = request.user
+        context['task_editing_form'] = TaskForm()
 
         return context
 
