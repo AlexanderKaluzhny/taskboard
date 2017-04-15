@@ -19,6 +19,14 @@ $(function() {
   }
 
   var TaskRequest = {
+    taskSubmitUrl: ['/tasks/', 'TASK ID HERE', '/'],
+
+    composeSubmitUrl: function(task) {
+      var url = TaskRequest.taskSubmitUrl;
+      url[1] = task.id;
+      return url.join('');
+    },
+
     patch: function(url, data, onSuccessHandler, onErrorHandler) {
       $.ajax({
         "type": "PATCH",
@@ -57,7 +65,12 @@ $(function() {
       // render task data into template
       var $div = this.renderIntoDiv(temlateName, templateContext);
       $(this.placeToRender).html($div);
-    }
+    },
+
+    renderIntoPlacehoder: function(placeholder, temlateName, templateContext) {
+      var $div = this.renderIntoDiv(temlateName, templateContext);
+      $(placeholder).html($div);
+    },
   };
 
   var TaskEditingForm = {
@@ -65,13 +78,6 @@ $(function() {
     formSelector: '#task-editing-form',
     submitButtonSelector: '#submit',
     cancelButtonSelector: '#cancel',
-    submitUrl: ['/tasks/', 'TASK ID HERE', '/'],
-
-    composeSubmitUrl: function(task) {
-      var url = TaskEditingForm.submitUrl;
-      url[1] = task.id;
-      return url.join('');
-    },
 
     onTaskEditedResponseSuccess: function(task) {
       // handles editing form server response
@@ -86,7 +92,7 @@ $(function() {
       // get form data and submit it
       var $form = $(event.currentTarget);
       var form_data = serializeForm($form);
-      var url = TaskEditingForm.composeSubmitUrl(task);
+      var url = TaskRequest.composeSubmitUrl(task);
       TaskRequest.patch(url, form_data,
         TaskEditingForm.onTaskEditedResponseSuccess,
         TaskEditingForm.onTaskEditedResponseError
@@ -114,13 +120,17 @@ $(function() {
   var TaskInformationForm = {
     taskInformationTemplateName: '#task-information-template',
     controlButtonSelectors: {
-      'edit': '#edit-button'
+      'edit': '#edit-button',
+      'delete': '#delete-button'
     },
 
     assignFormHandlers: function(task) {
       // assign Edit button handler of the Task information form
       $('.control-buttons').on('click', this.controlButtonSelectors['edit'],
         $.proxy(TaskEditingForm.render, TaskEditingForm, task));
+      $('.control-buttons').on('click', this.controlButtonSelectors['delete'],
+        $.proxy(TaskDeleteForm.render, TaskDeleteForm, task));
+
     },
 
     render: function(task) {
@@ -140,6 +150,72 @@ $(function() {
         "error": error,
       });
     },
+  }
+
+  var TaskDeleteForm = {
+    templateName: '#task-delete-form-template',
+
+    deleteQuestionPlaceholderSelector: '#task-delete-question-placeholder',
+    deleteQuestionTemplateName: '#task-delete-question-template',
+    confirmationTemplateName: '#task-delete-confirmation-template',
+
+    confirmButtonSelector: '#confirm-button',
+    cancelButtonSelector: '#cancel-button',
+
+    onTaskDeleteResponseSuccess: function(task) {
+      // Task deleted successfully. Render confirmation form
+      TaskModalDialogTemplateRenderer.renderIntoPlacehoder(
+        this.deleteQuestionPlaceholderSelector,
+        this.confirmationTemplateName,
+        task
+      );
+      TaskListController.deleteTaskRow(task.id, task);
+    },
+    onTaskDeleteResponseError: function(status, error) {
+      ServerErrorForm.render(status, error);
+    },
+
+    onSubmitForm: function(task, event) {
+      var url = TaskRequest.composeSubmitUrl(task);
+      // TaskRequest.delete(url,
+      //   $.proxy(TaskDeleteForm.onTaskDeleteResponseSuccess, TaskDeleteForm, task),
+      //   TaskDeleteForm.onTaskDeleteResponseError
+      // );
+      /***********/
+      TaskModalDialogTemplateRenderer.renderIntoPlacehoder(
+        this.deleteQuestionPlaceholderSelector,
+        this.confirmationTemplateName,
+        task
+      );
+      TaskListController.deleteTaskRow(task.id);
+      /***********/
+      event.preventDefault();
+    },
+
+    onCancelForm: function(task) {
+      TaskInformationForm.render(task);
+    },
+
+    assignFormHandlers: function(task) {
+      // assign delete confirmation button handler
+      $(this.confirmButtonSelector).click(
+        $.proxy(this.onSubmitForm, this, task));
+      // assign cancel delete button handler
+      $(this.cancelButtonSelector).click(
+        $.proxy(this.onCancelForm, this, task)
+      );
+    },
+
+    render: function(task) {
+      TaskModalDialogTemplateRenderer.render(this.templateName, task);
+      TaskModalDialogTemplateRenderer.renderIntoPlacehoder(
+        this.deleteQuestionPlaceholderSelector,
+        this.deleteQuestionTemplateName,
+        task
+      );
+      // assign button handlers for rendered fragment
+      this.assignFormHandlers(task);
+    }
   }
 
   var TaskListController = {
@@ -179,6 +255,10 @@ $(function() {
           }
         }
       });
+    },
+    deleteTaskRow: function(id){
+      var $taskRow = this.getTaskRow(id);
+      $taskRow.remove();
     },
   }
 
