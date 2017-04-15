@@ -39,21 +39,23 @@
           <th class="text-center">Actions</th>
         </tr>
         {% for task in results %}
-        <tr class="task-list-item" id="task-id-{{ task.id }}" data-id="{{ task.id }}" data-name="{{ task.name }}" data-created-by-name="{{ task.created_by_username }}"
-              data-description="{{ task.description }}" data-accomplished-by="{{ task.accomplished_by }}"
+        <tr class="task-list-item" id="task-id-{{ task.id }}" data-id="{{ task.id }}" data-name="{{ task.name }}" data-created_by_username="{{ task.created_by_username }}"
+              data-description="{{ task.description }}" data-accomplished_by="{{ task.accomplished_by }}"
               data-status="{{ task.status }}">
           <td class="col-md-6">
-            <a class="task-link-dialog-toggler" role="button" href="#task-data-{{ forloop.counter }}" data-toggle="modal"
+            <a class="task-link-dialog-toggler task-name" role="button" href="#task-data-{{ forloop.counter }}" data-toggle="modal"
                       data-target="#task-modal-form">
               {{ task.name }}
             </a>
           </td>
-          <td class="col-md-2 text-center">
+          <td class="col-md-2 text-center task-created-by-username">
             {{ task.created_by_username }}
           </td>
           <td class="col-md-2 text-center">
-            <span class="status-label label label-primary">{{ task.status }}</span>
-            {{ task.accomplished_by }}
+            <span class="task-status label label-primary">{{ task.status }}</span>
+            <span class="task-accomplished-by">
+              {{ task.accomplished_by }}
+            </span>
           </td>
           <td class="col-md-2 text-center">
             <div class="control-buttons">

@@ -15,3 +15,8 @@
   max-height: 75vh;
   overflow: auto;
 }
+
+.server-status-label {
+    margin: 2px;
+    display: block;
+}

@@ -1,21 +1,21 @@
 $(function() {
 
   $.ajaxPrefilter(function(settings, originalOptions, xhr) {
-      var csrftoken;
-      if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
-          // Send the token to same-origin, relative URLs only.
-          // Send the token only if the method warrants CSRF protection
-          // Using the CSRFToken value acquired earlier
-          csrftoken = getCookie('csrftoken');
-          xhr.setRequestHeader('X-CSRFToken', csrftoken);
-      }
+    var csrftoken;
+    if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+      // Send the token to same-origin, relative URLs only.
+      // Send the token only if the method warrants CSRF protection
+      // Using the CSRFToken value acquired earlier
+      csrftoken = getCookie('csrftoken');
+      xhr.setRequestHeader('X-CSRFToken', csrftoken);
+    }
   });
 
   function serializeForm(form) {
-      return _.object(_.map(form.serializeArray(), function(item) {
-          // Convert object to tuple of (name, value)
-          return [item.name, item.value];
-      }));
+    return _.object(_.map(form.serializeArray(), function(item) {
+      // Convert object to tuple of (name, value)
+      return [item.name, item.value];
+    }));
   }
 
   var TaskRequest = {
@@ -34,8 +34,7 @@ $(function() {
       onSuccessHandler(data);
     },
     onRequestFailed: function(onErrorHandler, xhr, textStatus, error) {
-      if (xhr.status == 400) {} else if (xhr.status == 500) {}
-      onErrorHandler(error);
+      onErrorHandler(xhr.status, error);
       console.log(error);
     },
   }
@@ -74,19 +73,32 @@ $(function() {
       return url.join('');
     },
 
+    onTaskEditedResponseSuccess: function(task) {
+      // handles editing form server response
+      TaskInformationForm.render(task);
+      TaskListController.updateTaskRow(task.id, task);
+    },
+    onTaskEditedResponseError: function(status, error) {
+      ServerErrorForm.render(status, error);
+    },
+
     onSubmitForm: function(task, event) {
-      event.preventDefault();
+      // get form data and submit it
       var $form = $(event.currentTarget);
       var form_data = serializeForm($form);
-      // TODO: remove {% url 'api-v1:task-update' '26' %} 
-      var url = $form[0].action; // TaskEditingForm.composeSubmitUrl(task);
-      TaskRequest.patch(url, form_data);
+      var url = TaskEditingForm.composeSubmitUrl(task);
+      TaskRequest.patch(url, form_data,
+        TaskEditingForm.onTaskEditedResponseSuccess,
+        TaskEditingForm.onTaskEditedResponseError
+      );
+
+      event.preventDefault();
     },
     onCancelForm: function(task) {
       TaskInformationForm.render(task);
     },
 
-    assignButtonHandlers: function(task) {
+    assignFormHandlers: function(task) {
       $(this.formSelector).on('submit', $.proxy(this.onSubmitForm, this, task));
       $(this.cancelButtonSelector).click(
         $.proxy(this.onCancelForm, this, task)
@@ -95,9 +107,9 @@ $(function() {
 
     render: function(task) {
       TaskModalDialogTemplateRenderer.render(TaskEditingForm.formTemplate, task)
-      this.assignButtonHandlers(task);
+      this.assignFormHandlers(task);
     },
-  }
+  };
 
   var TaskInformationForm = {
     taskInformationTemplateName: '#task-information-template',
@@ -105,7 +117,7 @@ $(function() {
       'edit': '#edit-button'
     },
 
-    assignButtonHandlers: function(task) {
+    assignFormHandlers: function(task) {
       // assign Edit button handler of the Task information form
       $('.control-buttons').on('click', this.controlButtonSelectors['edit'],
         $.proxy(TaskEditingForm.render, TaskEditingForm, task));
@@ -115,12 +127,62 @@ $(function() {
       // render the TaskInformationForm template
       TaskModalDialogTemplateRenderer.render(this.taskInformationTemplateName, task);
       // assign button handlers for rendered fragment
-      this.assignButtonHandlers(task);
+      this.assignFormHandlers(task);
     }
+  };
+
+  var ServerErrorForm = {
+    templateName: '#server-error-template',
+
+    render: function(status, error) {
+      TaskModalDialogTemplateRenderer.render(this.templateName, {
+        "status": status,
+        "error": error,
+      });
+    },
+  }
+
+  var TaskListController = {
+    taskListItemSelector: '.task-list-item',
+    taskListItemIdSelector: '.task-list-item#task-id-',
+    taskListItemFieldSelectors: { // fields of task object corresponding to selectors
+      'name': '.task-name',
+      'created_by_username': '.task-created-by-username',
+      'status': '.task-status',
+      'accomplished_by': '.task-accomplished-by',
+    },
+
+    getTaskRow: function(id) {
+      var $taskRow = $(this.taskListItemIdSelector + id);
+      return $taskRow;
+    },
+
+    updateTaskRow: function(id, task) {
+      var $taskRow = this.getTaskRow(id);
+      this.updateRowDataAttributes($taskRow, task);
+      this.updateTaskColumns($taskRow, task);
+    },
+    updateRowDataAttributes: function($taskRow, task) {
+      // updating  <tr class="task-list-item" ... data-...
+      $.each(task, function(key, value) {
+        $taskRow.data(key, value);
+        $taskRow.attr('data-' + key, value);
+      });
+    },
+    updateTaskColumns: function($taskRow, task) {
+      // updating task list columns
+      $.each(this.taskListItemFieldSelectors, function(taskField, selector) {
+        // place task object values into the corresponding task column by selector
+        if (taskField in task) {
+          if ($taskRow.find(selector).length) {
+            $taskRow.find(selector).text(task[taskField]);
+          }
+        }
+      });
+    },
   }
 
   var TaskModalDialogController = {
-    taskListItemSelector: '.task-list-item',
     taskListItemDialogToggler: '.task-link-dialog-toggler',
 
     onTaskListEditButtonClick: function(event) {

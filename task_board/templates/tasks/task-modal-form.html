@@ -24,7 +24,7 @@
 </div>
 
 <script type="text/html" id="task-editing-form-template">
-  <form id="task-editing-form" class="center-block" action="{% url 'api-v1:task-update' '26' %}" enctype="multipart/form-data" method="post">
+  <form id="task-editing-form" class="center-block" action="" enctype="multipart/form-data" method="post">
     <div id="task-form-fields">
       {% csrf_token %}
       <div id="div_id_name" class="form-group"><label for="id_name" class="control-label  requiredField">
@@ -59,12 +59,12 @@
 
 </script>
 
-<!-- accomplishedBy : "None"
-createdByName : "alex"
-description : "Cras sit amet nibh libero, in gravida nulla. Nulla vel metus scelerisque ante sollicitudin commodo. "
+<!-- accomplished_by : "None"
+created_by_username : "alex"
+description : "Cras sit amet nibh libero, in gravida nulla. Nulla vel metus scelerisque ante sollicitudin"
 id : 26
 name : "Task number 15"
-status : 0 -->
+status : 0-->
 
 <script type="text/html" id="task-information-template">
   <div class="row">
@@ -85,7 +85,7 @@ status : 0 -->
   <div class="row">
     <div id="task-general-info" class="col-md-12">
       <b>Created by:</b>
-      <%= createdByName %>
+      <%= created_by_username %>
     </div>
   </div>
   <div class="row">
@@ -99,5 +99,15 @@ status : 0 -->
       <b>Description:</b>
       <%= description %>
     </div>
+  </div>
+</script>
+
+<script type="text/html" id="server-error-template">
+  <div id="">
+    <span class="server-status-label label label-danger">Server Internal Error</span>
+    <h3>Ooops. Something went wrong.</h3>
+    <p>Status <%= status %></p>
+    <p><%= error %></p>
+    <button id="close-error-form" class="btn btn-primary col-md-6 col-md-offset-3" data-dismiss="modal">Ok</button>
   </div>
 </script>

@@ -21,8 +21,13 @@ class Task(models.Model):
     name = models.CharField(_("Name"), max_length=80, blank=False)
     description = models.TextField(_("Description"), blank=False)
     status = models.SmallIntegerField(choices=STATUSES, default=STATUS_DEFAULT)
+    modified_on = models.DateTimeField(auto_now=True)
+
     created_by = models.ForeignKey(User, related_name='tasks', null=False)
     accomplished_by = models.ForeignKey(User, related_name='accomplished_tasks', null=True)
 
     def __str__(self):
         return '%s' % (self.name)
+
+    class Meta:
+        ordering = ['-modified_on']
