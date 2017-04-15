@@ -38,6 +38,17 @@ $(function() {
         error: $.proxy(this.onRequestFailed, this, onErrorHandler),
       });
     },
+    delete: function(url, onSuccessHandler, onErrorHandler) {
+      $.ajax({
+        "type": "DELETE",
+        "dataType": "json",
+        "url": url,
+        context: this,
+        success: $.proxy(this.onRequestSuccess, this, onSuccessHandler),
+        error: $.proxy(this.onRequestFailed, this, onErrorHandler),
+      });
+    },
+
     onRequestSuccess: function(onSuccessHandler, data, textStatus, jqXHR) {
       onSuccessHandler(data);
     },
@@ -169,40 +180,33 @@ $(function() {
         this.confirmationTemplateName,
         task
       );
-      TaskListController.deleteTaskRow(task.id, task);
+      // delete task row from listing
+      TaskListController.deleteTaskRow(task.id);
     },
     onTaskDeleteResponseError: function(status, error) {
       ServerErrorForm.render(status, error);
     },
 
-    onSubmitForm: function(task, event) {
+    onSubmitDelete: function(task, event) {
       var url = TaskRequest.composeSubmitUrl(task);
-      // TaskRequest.delete(url,
-      //   $.proxy(TaskDeleteForm.onTaskDeleteResponseSuccess, TaskDeleteForm, task),
-      //   TaskDeleteForm.onTaskDeleteResponseError
-      // );
-      /***********/
-      TaskModalDialogTemplateRenderer.renderIntoPlacehoder(
-        this.deleteQuestionPlaceholderSelector,
-        this.confirmationTemplateName,
-        task
+      TaskRequest.delete(url,
+        $.proxy(TaskDeleteForm.onTaskDeleteResponseSuccess, TaskDeleteForm, task),
+        TaskDeleteForm.onTaskDeleteResponseError
       );
-      TaskListController.deleteTaskRow(task.id);
-      /***********/
       event.preventDefault();
     },
 
-    onCancelForm: function(task) {
+    onCancelDelete: function(task) {
       TaskInformationForm.render(task);
     },
 
     assignFormHandlers: function(task) {
       // assign delete confirmation button handler
       $(this.confirmButtonSelector).click(
-        $.proxy(this.onSubmitForm, this, task));
+        $.proxy(this.onSubmitDelete, this, task));
       // assign cancel delete button handler
       $(this.cancelButtonSelector).click(
-        $.proxy(this.onCancelForm, this, task)
+        $.proxy(this.onCancelDelete, this, task)
       );
     },
 

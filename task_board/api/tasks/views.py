@@ -2,6 +2,7 @@ from braces.views import LoginRequiredMixin
 
 from django_filters.rest_framework import DjangoFilterBackend
 
+from rest_framework import mixins
 from rest_framework.generics import ListCreateAPIView, UpdateAPIView
 from rest_framework.renderers import BrowsableAPIRenderer, JSONRenderer, TemplateHTMLRenderer
 from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
@@ -79,11 +80,15 @@ class TaskListCreateView(LoginRequiredMixin, ListCreateAPIView):
         return Task.objects.all().select_related()
 
 
-class TaskUpdateView(UpdateAPIView):
+class TaskUpdateDeleteView(mixins.DestroyModelMixin, UpdateAPIView):
     # queryset = Task.objects.all()
     serializer_class = TaskSerializer
     renderer_classes = (JSONRenderer,)
+    # TODO: update/delete only for owner of the task
     permission_classes = (IsAuthenticated,)
+
+    def delete(self, request, *args, **kwargs):
+        return self.destroy(request, *args, **kwargs)
 
     def get_queryset(self):
         # prefetch the User related information
