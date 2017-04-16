@@ -110,7 +110,7 @@ status : 0-->
   <button id="close-error-form" class="btn btn-primary col-md-6 col-md-offset-3" data-dismiss="modal">Ok</button>
 </script>
 
-<script type="text/html" id="task-delete-form-template">
+<script type="text/html" id="task-short-info-question-template">
   <div class="row">
     <div id="task-name" class="col-md-7">
       <b>Name:</b>
@@ -130,7 +130,7 @@ status : 0-->
     </div>
   </div>
   <hr>
-  <div id="task-delete-question-placeholder" class="center-block">
+  <div id="task-short-info-question-placeholder" class="center-block">
   </div>
 </script>
 
@@ -143,7 +143,22 @@ status : 0-->
 </script>
 
 <script type="text/html" id="task-delete-confirmation-template">
-  <h4>Task deleted successfully</h4>
+  <h4>Task deleted.</h4>
+  <div class="control-buttons">
+    <button id="close-form" class="btn btn-primary" data-dismiss="modal">Ok</button>
+  </div>
+</script>
+
+<script type="text/html" id="task-markasdone-question-template">
+  <h4>Mark this task as DONE?</h4>
+  <div class="control-buttons">
+    <button id="confirm-button" class="btn btn-success" type="submit">Done</button>
+    <button id="cancel-button" class="btn btn-default">Cancel</button>
+  </div>
+</script>
+
+<script type="text/html" id="task-markasdone-confirmation-template">
+  <h4>Task marked as DONE by you.</h4>
   <div class="control-buttons">
     <button id="close-form" class="btn btn-primary" data-dismiss="modal">Ok</button>
   </div>

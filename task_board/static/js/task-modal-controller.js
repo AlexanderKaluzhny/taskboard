@@ -132,7 +132,8 @@ $(function() {
     taskInformationTemplateName: '#task-information-template',
     controlButtonSelectors: {
       'edit': '#edit-button',
-      'delete': '#delete-button'
+      'delete': '#delete-button',
+      'markAsDone': '#markdone-button',
     },
 
     assignFormHandlers: function(task) {
@@ -141,6 +142,8 @@ $(function() {
         $.proxy(TaskEditingForm.render, TaskEditingForm, task));
       $('.control-buttons').on('click', this.controlButtonSelectors['delete'],
         $.proxy(TaskDeleteForm.render, TaskDeleteForm, task));
+      $('.control-buttons').on('click', this.controlButtonSelectors['markAsDone'],
+        $.proxy(TaskMarkAsDoneForm.render, TaskMarkAsDoneForm, task));
 
     },
 
@@ -164,9 +167,9 @@ $(function() {
   }
 
   var TaskDeleteForm = {
-    templateName: '#task-delete-form-template',
+    templateName: '#task-short-info-question-template',
 
-    deleteQuestionPlaceholderSelector: '#task-delete-question-placeholder',
+    deleteQuestionPlaceholderSelector: '#task-short-info-question-placeholder',
     deleteQuestionTemplateName: '#task-delete-question-template',
     confirmationTemplateName: '#task-delete-confirmation-template',
 
@@ -174,7 +177,8 @@ $(function() {
     cancelButtonSelector: '#cancel-button',
 
     onTaskDeleteResponseSuccess: function(task) {
-      // Task deleted successfully. Render confirmation form
+      // Task deleted successfully. Render confirmation form.
+      // NOTE: task object was bound in the onSubmitDelete
       TaskModalDialogTemplateRenderer.renderIntoPlacehoder(
         this.deleteQuestionPlaceholderSelector,
         this.confirmationTemplateName,
@@ -215,6 +219,69 @@ $(function() {
       TaskModalDialogTemplateRenderer.renderIntoPlacehoder(
         this.deleteQuestionPlaceholderSelector,
         this.deleteQuestionTemplateName,
+        task
+      );
+      // assign button handlers for rendered fragment
+      this.assignFormHandlers(task);
+    }
+  }
+
+  var TaskMarkAsDoneForm = {
+    templateName: '#task-short-info-question-template',
+
+    raiseQuestionPlaceholderSelector: '#task-short-info-question-placeholder',
+    raiseQuestionTemplateName: '#task-markasdone-question-template',
+    confirmationTemplateName: '#task-markasdone-confirmation-template',
+
+    confirmButtonSelector: '#confirm-button',
+    cancelButtonSelector: '#cancel-button',
+
+    onServerResponseSuccess: function(task) {
+      // Task action done successfully. Render confirmation form
+      TaskModalDialogTemplateRenderer.renderIntoPlacehoder(
+        TaskMarkAsDoneForm.raiseQuestionPlaceholderSelector,
+        TaskMarkAsDoneForm.confirmationTemplateName,
+        task
+      );
+      // update task row on the main list
+      TaskListController.updateTaskRow(task.id, task);
+    },
+    onServerResponseError: function(status, error) {
+      ServerErrorForm.render(status, error);
+    },
+
+    onSubmit: function(task, event) {
+      var url = TaskRequest.composeSubmitUrl(task);
+
+      TaskRequest.patch(url, task,
+        TaskMarkAsDoneForm.onServerResponseSuccess,
+        TaskMarkAsDoneForm.onServerResponseError
+      );
+      event.preventDefault();
+    },
+
+    onCancel: function(task) {
+      // return back to the information form
+      TaskInformationForm.render(task);
+    },
+
+    assignFormHandlers: function(task) {
+      // assign confirmation button handler
+      $(this.confirmButtonSelector).click(
+        $.proxy(this.onSubmit, this, task));
+      // assign cancel button handler
+      $(this.cancelButtonSelector).click(
+        $.proxy(this.onCancel, this, task)
+      );
+    },
+
+    render: function(task) {
+      // render the form containing a short information and
+      // render the question into the form
+      TaskModalDialogTemplateRenderer.render(this.templateName, task);
+      TaskModalDialogTemplateRenderer.renderIntoPlacehoder(
+        this.raiseQuestionPlaceholderSelector,
+        this.raiseQuestionTemplateName,
         task
       );
       // assign button handlers for rendered fragment

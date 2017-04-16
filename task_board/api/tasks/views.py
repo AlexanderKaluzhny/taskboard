@@ -1,13 +1,15 @@
-from braces.views import LoginRequiredMixin
-
 from django_filters.rest_framework import DjangoFilterBackend
 
 from rest_framework import mixins
 from rest_framework.generics import ListCreateAPIView, UpdateAPIView
 from rest_framework.renderers import BrowsableAPIRenderer, JSONRenderer, TemplateHTMLRenderer
-from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
 from rest_framework.pagination import PageNumberPagination
 from rest_framework import filters
+
+from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated, BasePermission
+from rest_framework.compat import is_authenticated
+
+from braces.views import LoginRequiredMixin
 
 from task_board.tasks.models import Task
 from task_board.tasks.forms import TaskForm
@@ -80,12 +82,59 @@ class TaskListCreateView(LoginRequiredMixin, ListCreateAPIView):
         return Task.objects.all().select_related()
 
 
+class IsTaskOwnerOrMarkDoneOnly(BasePermission):
+    """
+    Permission class implying the rules:
+    Edit: task name, description and status - allowed only for task owner
+    Mark Done: changing the status of a task to "done" - allowed for everyone.
+    Delete: deleting a task (allowed only for task owner)
+    """
+
+    owner_allowed_fields = ['name', 'description', 'status']
+    everybody_allowed_fields = ['status']
+
+    def _is_delete_forbidden(self, request, obj):
+        if request.method.upper() == 'DELETE' and (not request.user == obj.created_by):
+            self.message = 'Delete is allowed for task owner only.'
+            return True
+
+    def has_permission(self, request, view):
+        return True
+
+    def has_object_permission(self, request, view, obj):
+        if self._is_delete_forbidden(request, obj):
+            return False
+
+        if request.method.upper() == 'PATCH':
+            updated_fields = set(request.data.keys())
+            updated_fields.discard('csrfmiddlewaretoken')
+
+            if request.user == obj.created_by:
+                # the owner is allowed to update only the allowed_fields
+                allowed_fields = set(self.owner_allowed_fields)
+                if len(updated_fields) and not updated_fields.issubset(allowed_fields):
+                    self.message = 'Owner is allowed to update only %s fields' % (','.join(self.owner_allowed_fields))
+                    return False
+            else:
+                # for everybody else the field set is restricted to status only
+                everybody_allowed = set(self.everybody_allowed_fields)
+                if not len(updated_fields) \
+                    or not updated_fields.issubset(everybody_allowed):
+                    self.message = 'It is possible to update only the %s field for not a task owner.' % (''.join(self.everybody_allowed_fields))
+                    return False
+
+                if 'status' in request.data.keys() and request.data['status'] != Task.STATUS_DONE:
+                    self.message = 'the status can only be set to \'Done\' for not a task owner.'
+                    return False
+
+
+        return True
+
 class TaskUpdateDeleteView(mixins.DestroyModelMixin, UpdateAPIView):
     # queryset = Task.objects.all()
     serializer_class = TaskSerializer
     renderer_classes = (JSONRenderer,)
-    # TODO: update/delete only for owner of the task
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsAuthenticated, IsTaskOwnerOrMarkDoneOnly, )
 
     def delete(self, request, *args, **kwargs):
         return self.destroy(request, *args, **kwargs)
