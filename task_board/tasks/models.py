@@ -31,3 +31,11 @@ class Task(models.Model):
 
     class Meta:
         ordering = ['-modified_on']
+
+    def save(self, *args, **kwargs):
+        if self.status == Task.STATUS_DEFAULT:
+            self.accomplished_by = None
+
+        super(Task, self).save(*args, **kwargs)
+
+    # TODO: validate the accomplished_by when status is set

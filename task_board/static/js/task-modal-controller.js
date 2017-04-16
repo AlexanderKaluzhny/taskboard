@@ -235,6 +235,7 @@ $(function() {
 
     confirmButtonSelector: '#confirm-button',
     cancelButtonSelector: '#cancel-button',
+    markAsDoneStatusValue: '1',
 
     onServerResponseSuccess: function(task) {
       // Task action done successfully. Render confirmation form
@@ -252,8 +253,11 @@ $(function() {
 
     onSubmit: function(task, event) {
       var url = TaskRequest.composeSubmitUrl(task);
-
-      TaskRequest.patch(url, task,
+      // get the status done value from the task-editing-form-template
+      var markAsDoneData = {
+        'status': TaskMarkAsDoneForm.markAsDoneStatusValue,
+      }
+      TaskRequest.patch(url, markAsDoneData,
         TaskMarkAsDoneForm.onServerResponseSuccess,
         TaskMarkAsDoneForm.onServerResponseError
       );
@@ -296,7 +300,7 @@ $(function() {
       'name': '.task-name',
       'created_by_username': '.task-created-by-username',
       'status': '.task-status',
-      'accomplished_by': '.task-accomplished-by',
+      'accomplished_by_username': '.task-accomplished-by',
     },
 
     getTaskRow: function(id) {

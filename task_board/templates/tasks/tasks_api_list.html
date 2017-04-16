@@ -40,7 +40,7 @@
         </tr>
         {% for task in results %}
         <tr class="task-list-item" id="task-id-{{ task.id }}" data-id="{{ task.id }}" data-name="{{ task.name }}" data-created_by_username="{{ task.created_by_username }}"
-              data-description="{{ task.description }}" data-accomplished_by="{{ task.accomplished_by }}"
+              data-description="{{ task.description }}" data-accomplished_by="{{ task.accomplished_by }}" data-accomplished_by_username="{{ task.accomplished_by_username }}"
               data-status="{{ task.status }}">
           <td class="col-md-6">
             <a class="task-link-dialog-toggler task-name" role="button" href="#task-data-{{ forloop.counter }}" data-toggle="modal"
@@ -54,7 +54,7 @@
           <td class="col-md-2 text-center">
             <span class="task-status label label-primary">{{ task.status }}</span>
             <span class="task-accomplished-by">
-              {{ task.accomplished_by }}
+              {{ task.accomplished_by_username }}
             </span>
           </td>
           <td class="col-md-2 text-center">

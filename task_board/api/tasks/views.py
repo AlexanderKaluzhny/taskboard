@@ -5,9 +5,9 @@ from rest_framework.generics import ListCreateAPIView, UpdateAPIView
 from rest_framework.renderers import BrowsableAPIRenderer, JSONRenderer, TemplateHTMLRenderer
 from rest_framework.pagination import PageNumberPagination
 from rest_framework import filters
+from rest_framework.response import Response
 
 from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated, BasePermission
-from rest_framework.compat import is_authenticated
 
 from braces.views import LoginRequiredMixin
 
@@ -84,7 +84,7 @@ class TaskListCreateView(LoginRequiredMixin, ListCreateAPIView):
 
 class IsTaskOwnerOrMarkDoneOnly(BasePermission):
     """
-    Permission class implying the rules:
+    Permission class imposing the rules:
     Edit: task name, description and status - allowed only for task owner
     Mark Done: changing the status of a task to "done" - allowed for everyone.
     Delete: deleting a task (allowed only for task owner)
@@ -120,21 +120,44 @@ class IsTaskOwnerOrMarkDoneOnly(BasePermission):
                 everybody_allowed = set(self.everybody_allowed_fields)
                 if not len(updated_fields) \
                     or not updated_fields.issubset(everybody_allowed):
-                    self.message = 'It is possible to update only the %s field for not a task owner.' % (''.join(self.everybody_allowed_fields))
+                    self.message = 'It is possible to update only the %s field for not a task owner.' % (
+                        ''.join(self.everybody_allowed_fields))
                     return False
 
-                if 'status' in request.data.keys() and request.data['status'] != Task.STATUS_DONE:
+                if 'status' in request.data.keys() and str(request.data['status']) != str(Task.STATUS_DONE):
                     self.message = 'the status can only be set to \'Done\' for not a task owner.'
                     return False
 
-
         return True
+
 
 class TaskUpdateDeleteView(mixins.DestroyModelMixin, UpdateAPIView):
     # queryset = Task.objects.all()
     serializer_class = TaskSerializer
     renderer_classes = (JSONRenderer,)
-    permission_classes = (IsAuthenticated, IsTaskOwnerOrMarkDoneOnly, )
+    permission_classes = (IsAuthenticated, IsTaskOwnerOrMarkDoneOnly,)
+
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object()
+        data = request.data.copy()
+
+        # TODO: tests, make sure the accomplished by is specified on setting of status
+        # specify the user who accomplished the task if the status 'done' is set
+        if ('status' in request.data.keys()
+            and str(request.data['status']) == str(Task.STATUS_DONE)):
+            data['accomplished_by'] = request.user.pk
+
+        serializer = self.get_serializer(instance, data=data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+
+        if getattr(instance, '_prefetched_objects_cache', None):
+            # If 'prefetch_related' has been applied to a queryset, we need to
+            # forcibly invalidate the prefetch cache on the instance.
+            instance._prefetched_objects_cache = {}
+
+        return Response(serializer.data)
 
     def delete(self, request, *args, **kwargs):
         return self.destroy(request, *args, **kwargs)
