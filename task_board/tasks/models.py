@@ -1,6 +1,7 @@
 from __future__ import unicode_literals
 
 from django.db import models
+from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext_lazy as _
 from django.utils.encoding import python_2_unicode_compatible
 
@@ -9,7 +10,6 @@ from task_board.users.models import User
 
 @python_2_unicode_compatible
 class Task(models.Model):
-
     STATUS_DEFAULT = 0
     STATUS_DONE = 1
 
@@ -38,4 +38,7 @@ class Task(models.Model):
 
         super(Task, self).save(*args, **kwargs)
 
-    # TODO: validate the accomplished_by when status is set
+    def clean(self):
+        # make sure accomplished_by field is set on setting of status to \'Done\'
+        if self.status == Task.STATUS_DONE and self.accomplished_by == None:
+            raise ValidationError('accomplished_by field should be set on setting of status to \'Done\'')

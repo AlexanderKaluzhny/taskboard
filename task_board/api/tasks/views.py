@@ -71,7 +71,7 @@ class TaskListCreateView(LoginRequiredMixin, ListCreateAPIView):
     pagination_class = PaginationSettings
 
     renderer_classes = (ListViewTemplateRenderer, JSONRenderer, BrowsableAPIRenderer,)
-    permission_classes = (IsAuthenticatedOrReadOnly,)
+    permission_classes = (IsAuthenticated,)
 
     filter_backends = (filters.SearchFilter, DjangoFilterBackend)
     search_fields = ['name', 'description']
@@ -142,7 +142,6 @@ class TaskUpdateDeleteView(mixins.DestroyModelMixin, UpdateAPIView):
         instance = self.get_object()
         data = request.data.copy()
 
-        # TODO: tests, make sure the accomplished by is specified on setting of status
         # specify the user who accomplished the task if the status 'done' is set
         if ('status' in request.data.keys()
             and str(request.data['status']) == str(Task.STATUS_DONE)):
