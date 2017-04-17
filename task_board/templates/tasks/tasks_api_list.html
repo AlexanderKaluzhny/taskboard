@@ -41,7 +41,7 @@
         {% for task in results %}
         <tr class="task-list-item" id="task-id-{{ task.id }}" data-id="{{ task.id }}" data-name="{{ task.name }}" data-created_by_username="{{ task.created_by_username }}"
               data-description="{{ task.description }}" data-accomplished_by="{{ task.accomplished_by }}" data-accomplished_by_username="{{ task.accomplished_by_username }}"
-              data-status="{{ task.status }}">
+              data-status="{{ task.status }}" data-status_readable="{{ task.status_readable }}">
           <td class="col-md-6">
             <a class="task-link-dialog-toggler task-name" role="button" href="#task-data-{{ forloop.counter }}" data-toggle="modal"
                       data-target="#task-modal-form">
@@ -52,7 +52,7 @@
             {{ task.created_by_username }}
           </td>
           <td class="col-md-2 text-center">
-            <span class="task-status label label-primary">{{ task.status }}</span>
+            <span class="task-status">{{ task.status_readable }}</span>
             <span class="task-accomplished-by">
               {{ task.accomplished_by_username }}
             </span>
@@ -60,10 +60,16 @@
           <td class="col-md-2 text-center">
             <div class="control-buttons">
               {% if user.pk == task.created_by %}
-              <button id="edit-button" class="submit btn btn-default">E</button>
-              <button id="delete-button" class="submit btn btn-default">D</button>
+              <button id="edit-button" class="submit btn btn-default" role="button" data-toggle="modal" data-target="#task-modal-form">
+                E
+              </button>
+              <button id="delete-button" class="submit btn btn-default" role="button" data-toggle="modal" data-target="#task-modal-form">
+                D
+              </button>
               {% endif %}
-              <button id="markdone-button" class="submit btn btn-default">M</button>
+              <button id="markdone-button" class="submit btn btn-default" role="button" data-toggle="modal" data-target="#task-modal-form">
+                M
+              </button>
             </div>
           </td>
         </tr>

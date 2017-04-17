@@ -48,7 +48,7 @@
     <div class="form-group row">
       <div class="controls col-md-12">
         <button id="submit" class="btn btn-primary" type="submit">Apply</button>
-        <button id="cancel" class="btn btn-default">Cancel</button>
+        <button id="cancel" class="btn btn-default" type="button">Cancel</button>
       </div>
     </div>
   </form>
@@ -86,7 +86,7 @@ status : 0-->
   </div>
   <div class="row">
     <div id="task-status" class="col-md-12">
-      <b>Status: </b> <span class="status-label label label-primary"><%= status %> Not Done</span>
+      <b>Status: </b> <span class="status-label label label-primary"><%= status_readable %></span>
     </div>
   </div>
   <hr>
@@ -126,7 +126,7 @@ status : 0-->
   </div>
   <div class="row">
     <div id="task-status" class="col-md-12">
-      <b>Status: </b> <span class="status-label label label-primary"><%= status %> Not Done</span>
+      <b>Status: </b> <span class="status-label label label-primary"><%= status_readable %></span>
     </div>
   </div>
   <hr>

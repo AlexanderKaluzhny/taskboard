@@ -76,6 +76,7 @@ $(function() {
       // render task data into template
       var $div = this.renderIntoDiv(temlateName, templateContext);
       $(this.placeToRender).html($div);
+      return $div;
     },
 
     renderIntoPlacehoder: function(placeholder, temlateName, templateContext) {
@@ -111,20 +112,29 @@ $(function() {
 
       event.preventDefault();
     },
-    onCancelForm: function(task) {
+    onCancelForm: function(task, dismissOnCancel) {
+      if (dismissOnCancel) {
+        TaskListController.hideModalDialog();
+        return;
+      }
       TaskInformationForm.render(task);
     },
 
-    assignFormHandlers: function(task) {
+    assignFormHandlers: function(task, dismissOnCancel) {
       $(this.formSelector).on('submit', $.proxy(this.onSubmitForm, this, task));
       $(this.cancelButtonSelector).click(
-        $.proxy(this.onCancelForm, this, task)
+        $.proxy(this.onCancelForm, this, task, dismissOnCancel)
       );
     },
 
-    render: function(task) {
-      TaskModalDialogTemplateRenderer.render(TaskEditingForm.formTemplate, task)
-      this.assignFormHandlers(task);
+    render: function(task, context) {
+      var dismissOnCancel = false;
+      if (context && 'dismissOnCancel' in context) {
+        dismissOnCancel = context.dismissOnCancel;
+      }
+
+      TaskModalDialogTemplateRenderer.render(TaskEditingForm.formTemplate, task);
+      this.assignFormHandlers(task, dismissOnCancel);
     },
   };
 
@@ -136,22 +146,21 @@ $(function() {
       'markAsDone': '#markdone-button',
     },
 
-    assignFormHandlers: function(task) {
+    assignFormHandlers: function(task, $div) {
       // assign Edit button handler of the Task information form
-      $('.control-buttons').on('click', this.controlButtonSelectors['edit'],
+      $div.find('.control-buttons').on('click', this.controlButtonSelectors['edit'],
         $.proxy(TaskEditingForm.render, TaskEditingForm, task));
-      $('.control-buttons').on('click', this.controlButtonSelectors['delete'],
+      $div.find('.control-buttons').on('click', this.controlButtonSelectors['delete'],
         $.proxy(TaskDeleteForm.render, TaskDeleteForm, task));
-      $('.control-buttons').on('click', this.controlButtonSelectors['markAsDone'],
+      $div.find('.control-buttons').on('click', this.controlButtonSelectors['markAsDone'],
         $.proxy(TaskMarkAsDoneForm.render, TaskMarkAsDoneForm, task));
-
     },
 
     render: function(task) {
       // render the TaskInformationForm template
-      TaskModalDialogTemplateRenderer.render(this.taskInformationTemplateName, task);
+      var $renderedDiv = TaskModalDialogTemplateRenderer.render(this.taskInformationTemplateName, task);
       // assign button handlers for rendered fragment
-      this.assignFormHandlers(task);
+      this.assignFormHandlers(task, $renderedDiv);
     }
   };
 
@@ -200,21 +209,31 @@ $(function() {
       event.preventDefault();
     },
 
-    onCancelDelete: function(task) {
+    onCancelDelete: function(task, dismissOnCancel) {
+      if (dismissOnCancel) {
+        TaskListController.hideModalDialog();
+        return;
+      }
+
       TaskInformationForm.render(task);
     },
 
-    assignFormHandlers: function(task) {
+    assignFormHandlers: function(task, dismissOnCancel) {
       // assign delete confirmation button handler
       $(this.confirmButtonSelector).click(
         $.proxy(this.onSubmitDelete, this, task));
       // assign cancel delete button handler
       $(this.cancelButtonSelector).click(
-        $.proxy(this.onCancelDelete, this, task)
+        $.proxy(this.onCancelDelete, this, task, dismissOnCancel)
       );
     },
 
-    render: function(task) {
+    render: function(task, context) {
+      var dismissOnCancel = false;
+      if (context && 'dismissOnCancel' in context) {
+        dismissOnCancel = context.dismissOnCancel;
+      }
+
       TaskModalDialogTemplateRenderer.render(this.templateName, task);
       TaskModalDialogTemplateRenderer.renderIntoPlacehoder(
         this.deleteQuestionPlaceholderSelector,
@@ -222,7 +241,7 @@ $(function() {
         task
       );
       // assign button handlers for rendered fragment
-      this.assignFormHandlers(task);
+      this.assignFormHandlers(task, dismissOnCancel);
     }
   }
 
@@ -264,22 +283,30 @@ $(function() {
       event.preventDefault();
     },
 
-    onCancel: function(task) {
+    onCancel: function(task, dismissOnCancel) {
+      if (dismissOnCancel) {
+        TaskListController.hideModalDialog();
+        return;
+      }
       // return back to the information form
       TaskInformationForm.render(task);
     },
 
-    assignFormHandlers: function(task) {
+    assignFormHandlers: function(task, dismissOnCancel) {
       // assign confirmation button handler
       $(this.confirmButtonSelector).click(
         $.proxy(this.onSubmit, this, task));
       // assign cancel button handler
       $(this.cancelButtonSelector).click(
-        $.proxy(this.onCancel, this, task)
+        $.proxy(this.onCancel, this, task, dismissOnCancel)
       );
     },
 
-    render: function(task) {
+    render: function(task, context) {
+      var dismissOnCancel = false;
+      if (context && 'dismissOnCancel' in context) {
+        dismissOnCancel = context.dismissOnCancel;
+      }
       // render the form containing a short information and
       // render the question into the form
       TaskModalDialogTemplateRenderer.render(this.templateName, task);
@@ -289,23 +316,47 @@ $(function() {
         task
       );
       // assign button handlers for rendered fragment
-      this.assignFormHandlers(task);
+      this.assignFormHandlers(task, dismissOnCancel);
     }
   }
 
   var TaskListController = {
+    taskListSelector: '.task-list',
     taskListItemSelector: '.task-list-item',
     taskListItemIdSelector: '.task-list-item#task-id-',
     taskListItemFieldSelectors: { // fields of task object corresponding to selectors
       'name': '.task-name',
       'created_by_username': '.task-created-by-username',
-      'status': '.task-status',
+      'status_readable': {
+        'selector': '.task-status',
+        'updateMethod': 'updateTaskStatusColumn',
+      },
       'accomplished_by_username': '.task-accomplished-by',
+    },
+
+    taskListItemDialogToggler: '.task-link-dialog-toggler',
+    listControlButtonSelectors: {
+      'edit': '#edit-button',
+      'delete': '#delete-button',
+      'markAsDone': '#markdone-button',
+    },
+    taskStatusClasses: {
+      'DONE': 'label label-success',
+      'NOT DONE': 'label label-primary',
     },
 
     getTaskRow: function(id) {
       var $taskRow = $(this.taskListItemIdSelector + id);
       return $taskRow;
+    },
+    getTaskRowFromChildElem: function($elem) {
+      var $currentTaskItem = $elem.parents(this.taskListItemSelector);
+      return $currentTaskItem;
+    },
+    getTaskDataFromChildElem: function($elem) {
+      var $currentTaskItem = this.getTaskRowFromChildElem($elem);
+      var task = $currentTaskItem.data();
+      return task;
     },
 
     updateTaskRow: function(id, task) {
@@ -325,39 +376,107 @@ $(function() {
       $.each(this.taskListItemFieldSelectors, function(taskField, selector) {
         // place task object values into the corresponding task column by selector
         if (taskField in task) {
-          if ($taskRow.find(selector).length) {
+          if (selector.hasOwnProperty('updateMethod')) {
+            // special update method exists, so deligate column update to it.
+            var updateMethod = selector.updateMethod;
+            if (!TaskListController.hasOwnProperty(updateMethod)) {
+              throw updateMethod + ' is absent on the object';
+            }
+            selector = selector.selector;
+            if ($taskRow.find(selector).length) {
+              TaskListController[updateMethod]($taskRow, task, task[taskField], selector);
+            }
+          } else if ($taskRow.find(selector).length) {
             $taskRow.find(selector).text(task[taskField]);
           }
         }
       });
     },
-    deleteTaskRow: function(id){
+    deleteTaskRow: function(id) {
       var $taskRow = this.getTaskRow(id);
       $taskRow.remove();
     },
-  }
-
-  var TaskModalDialogController = {
-    taskListItemDialogToggler: '.task-link-dialog-toggler',
-
-    onTaskListEditButtonClick: function(event) {
-      // render edit form
-      // TODO: setup toggling of dialog in html
+    updateTaskStatusColumn: function($taskRow, task, fieldValue, selector) {
+      // special update method for the task 'status' column.
+      var $column = $taskRow.find(selector);
+      if ($column.length !== 0) {
+        var statusClass = TaskListController.taskStatusClasses[fieldValue.toUpperCase()]
+        if (statusClass !== undefined) {
+          $column.removeClass('label');
+          $column.removeClass('label-primary');
+          $column.removeClass('label-success');
+          $column.addClass(statusClass);
+        } else {
+          throw "Can't find the class for the " + fieldValue.toUpperCase() + " status";
+        }
+        $column.text(fieldValue);
+      }
     },
 
+    assignListButtonHandlers: function() {
+      // assign Edit button handler of the Task information form
+      var $taskList = $(this.taskListSelector);
+      $taskList.find('.control-buttons').on('click', this.listControlButtonSelectors['edit'],
+        $.proxy(TaskListController.onTaskListEditButtonClick, TaskListController));
+      $taskList.find('.control-buttons').on('click', this.listControlButtonSelectors['delete'],
+        $.proxy(TaskListController.onTaskListDeleteButtonClick, TaskListController));
+      $taskList.find('.control-buttons').on('click', this.listControlButtonSelectors['markAsDone'],
+        $.proxy(TaskListController.onTaskLiskMarkDoneButtonClick, TaskListController));
+    },
+    assignStatusLabels: function() {
+      $(this.taskListItemSelector).each(function(idx, taskRow) {
+          var $taskRow = $(taskRow);
+          var task = $taskRow.data();
+          var statusValue = task['status_readable'];
+          var selector = TaskListController.taskListItemFieldSelectors['status_readable'].selector;
+          TaskListController.updateTaskStatusColumn($taskRow, task, statusValue, selector);
+      });
+    },
+
+    onTaskListEditButtonClick: function(event) {
+      var $button = $(event.currentTarget);
+      var task = TaskListController.getTaskDataFromChildElem($button);
+      TaskEditingForm.render(task, {
+        dismissOnCancel: true
+      });
+      // propagate event so the modal window could be opened
+    },
+    onTaskListDeleteButtonClick: function(event) {
+      var $button = $(event.currentTarget);
+      var task = TaskListController.getTaskDataFromChildElem($button);
+      TaskDeleteForm.render(task, {
+        dismissOnCancel: true
+      });
+      // propagate event so the modal window could be opened
+    },
+    onTaskLiskMarkDoneButtonClick: function(event) {
+      var $button = $(event.currentTarget);
+      var task = TaskListController.getTaskDataFromChildElem($button);
+      TaskMarkAsDoneForm.render(task, {
+        dismissOnCancel: true
+      });
+      // propagate event so the modal window could be opened
+    },
     onTaskListItemDialogToggle: function(event) {
       // get the current task data from event
       var $button = $(event.currentTarget);
-      var $currentTaskItem = $(this).parents(".task-list-item");
-      var task = $currentTaskItem.data();
+      var task = TaskListController.getTaskDataFromChildElem($button);
 
       TaskInformationForm.render(task);
+      // propagate event so the modal window could be opened
+    },
+
+    hideModalDialog: function() {
+      $('#task-modal-form').modal('hide');
+      $('.modal-backdrop').remove();
     },
 
     init: function() {
       $(this.taskListItemDialogToggler).on('click', this.onTaskListItemDialogToggle);
+      this.assignListButtonHandlers();
+      this.assignStatusLabels();
     },
-  };
+  }
 
-  TaskModalDialogController.init();
+  TaskListController.init();
 }());
