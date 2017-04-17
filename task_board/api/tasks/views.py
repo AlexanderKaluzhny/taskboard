@@ -79,7 +79,7 @@ class TaskListCreateView(LoginRequiredMixin, ListCreateAPIView):
 
     def get_queryset(self):
         # prefetch the User related information
-        return Task.objects.all().select_related()
+        return Task.objects.all().select_related('created_by', 'accomplished_by')
 
 
 class IsTaskOwnerOrMarkDoneOnly(BasePermission):
