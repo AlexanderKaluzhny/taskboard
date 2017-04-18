@@ -15,3 +15,5 @@ LOGGING['loggers']['django.request']['handlers'] = ['console']
 # disabled for test purposes
 SESSION_COOKIE_SECURE = False
 CSRF_COOKIE_SECURE = False
+CSRF_COOKIE_HTTPONLY = False
+SESSION_COOKIE_HTTPONLY = False
