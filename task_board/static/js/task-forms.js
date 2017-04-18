@@ -78,9 +78,11 @@ var TaskInformationForm = {
     // render the TaskInformationForm template
     //
     var $renderedDiv = TaskModalDialogTemplateRenderer.render(this.taskInformationTemplateName, task);
+    // update displaying of particular form fields
+    TaskView.assignTaskStatusLabel($renderedDiv, task);
+    TaskView.displayTaskButtons($renderedDiv, task, this.controlButtonSelectors);
     // assign button handlers for rendered fragment
     this.assignFormHandlers(task, $renderedDiv);
-    TaskView.assignTaskStatusLabel($renderedDiv, task);
   }
 };
 
@@ -168,6 +170,7 @@ var TaskDeleteForm = {
       this.deleteQuestionTemplateName,
       task
     );
+    // update displaying of particular form fields
     TaskView.assignTaskStatusLabel($renderedDiv, task);
     // assign button handlers for rendered fragment
     this.assignFormHandlers(task, dismissOnCancel);
@@ -249,6 +252,7 @@ var TaskMarkAsDoneForm = {
       this.raiseQuestionTemplateName,
       task
     );
+    // update displaying of particular form fields
     TaskView.assignTaskStatusLabel($renderedDiv, task);
     // assign button handlers for rendered fragment
     this.assignFormHandlers(task, dismissOnCancel);

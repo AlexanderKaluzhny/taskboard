@@ -83,12 +83,18 @@ var TaskView = {
       'selector': '.task-status',
       'updateMethod': 'updateTaskStatusColumn',
     },
-    'accomplished_by_username': '.task-accomplished-by',
+    'accomplished_by_username': {
+      'selector': '.task-accomplished-by',
+      'updateMethod': 'updateTaskAccomplishedByColumn',
+    }
   },
   taskStatusClasses: {
     'DONE': 'label label-success',
     'NOT DONE': 'label label-primary',
   },
+  allowedButtonsForOwner: ['edit', 'delete', 'markAsDone'],
+  allowedButtonsForEverybody: ['markAsDone'],
+
   updateTaskColumns: function($taskRow, task) {
     // updating of task list columns with the values of Task object.
     //
@@ -110,10 +116,13 @@ var TaskView = {
         }
       }
     });
+    // display buttons based on update task information
+    TaskView.displayTaskButtons($taskRow, task, TaskListController.listControlButtonSelectors);
   },
   updateTaskStatusColumn: function($taskRow, task, fieldValue, selector) {
     // special update method for the task 'status' column.
     //
+    // get the particular placeholder where to place the value
     var $column = $taskRow.find(selector);
     if ($column.length !== 0) {
       var statusClass = TaskView.taskStatusClasses[fieldValue.toUpperCase()]
@@ -128,12 +137,59 @@ var TaskView = {
       $column.text(fieldValue);
     }
   },
+  updateTaskAccomplishedByColumn: function($taskRow, task, fieldValue, selector) {
+    // special update method for the task 'accomplished_by' column,
+    // its rendering depends on the task 'status' value.
+    //
+    // get the particular placeholder where to place the value
+    var $column = $taskRow.find(selector);
+    if ($column.length === 0) {
+      return;
+    }
+    $column.empty();
+    if ('status' in task && task['status'] == 1) {
+      $column.html('</p> by ' + fieldValue);
+    }
+  },
   assignTaskStatusLabel: function($taskRow, task) {
     // add the label class according to status. Done - label-success.
     //
-    var statusValue = task['status_readable'];
-    var selector = TaskView.taskListItemFieldSelectors['status_readable'].selector;
+    var taskField = 'status_readable';
+    var statusValue = task[taskField];
+    var selector = TaskView.taskListItemFieldSelectors[taskField].selector;
     TaskView.updateTaskStatusColumn($taskRow, task, statusValue, selector);
+  },
+  assignTaskAccomplishedBy: function($taskRow, task) {
+    // display the accomplished_by sting on the task
+    //
+    var taskField = 'accomplished_by_username';
+    var statusValue = task[taskField];
+    var selector = TaskView.taskListItemFieldSelectors[taskField].selector;
+    TaskView.updateTaskAccomplishedByColumn($taskRow, task, statusValue, selector);
+  },
+  displayTaskButtons: function ($taskRow, task, buttonToSelectorsMapping) {
+    // display task action buttons based on task ownership.
+    //
+    var currentUserId = TaskListController.getCurrentUserId();
+    var buttonsToDisplay = this.allowedButtonsForEverybody;
+    if (task.created_by == currentUserId) {
+      buttonsToDisplay = this.allowedButtonsForOwner;
+    }
+
+    $.each(buttonToSelectorsMapping, function(buttonName, buttonSelector) {
+      if (buttonsToDisplay.indexOf(buttonName) != -1) {
+        $taskRow.find(buttonSelector).show();
+        $taskRow.find(buttonSelector).prop('disabled', false);
+      } else {
+        $taskRow.find(buttonSelector).hide();
+        $taskRow.find(buttonSelector).prop('disabled', true);
+      }
+    });
+    if (task['status'] == 1) {
+      // disable the 'markAsDone' button if task is 'Done'
+      var buttonSelector = buttonToSelectorsMapping['markAsDone'];
+      $taskRow.find(buttonSelector).prop('disabled', true);
+    }
   },
 }
 
@@ -192,11 +248,13 @@ var TaskListController = {
     $taskList.find('.control-buttons').on('click', this.listControlButtonSelectors['markAsDone'],
       $.proxy(TaskListController.onTaskLiskMarkDoneButtonClick, TaskListController));
   },
-  assignStatusLabels: function() {
+  updateTaskColumnValues: function() {
     $(this.taskListItemSelector).each(function(idx, taskRow) {
       var $taskRow = $(taskRow);
       var task = $taskRow.data();
       TaskView.assignTaskStatusLabel($taskRow, task);
+      TaskView.assignTaskAccomplishedBy($taskRow, task);
+      TaskView.displayTaskButtons($taskRow, task, TaskListController.listControlButtonSelectors);
     });
   },
 
@@ -238,10 +296,14 @@ var TaskListController = {
     $('.modal-backdrop').remove();
   },
 
+  getCurrentUserId: function(){
+    return $('#current-user-id').data('id');
+  },
+
   init: function() {
     $(this.taskListItemDialogToggler).on('click', this.onTaskListItemDialogToggle);
     this.assignListButtonHandlers();
-    this.assignStatusLabels();
+    this.updateTaskColumnValues();
   },
 }
 

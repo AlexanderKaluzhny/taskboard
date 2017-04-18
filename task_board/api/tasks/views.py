@@ -74,7 +74,10 @@ class TaskListCreateView(LoginRequiredMixin, ListCreateAPIView):
     permission_classes = (IsAuthenticated,)
 
     filter_backends = (filters.SearchFilter, DjangoFilterBackend)
-    search_fields = ['name', 'description']
+    search_fields = {
+        'name': ['icontains'],
+        'description': ['icontains'],
+    }
     filter_fields = ['status']
 
     def get_queryset(self):
