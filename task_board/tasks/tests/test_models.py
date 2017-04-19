@@ -1,10 +1,10 @@
 from test_plus.test import TestCase
-from rest_framework.test import APIRequestFactory
 
 from django.core.exceptions import ValidationError
 
 from task_board.tasks.models import Task
 from task_board.users.tests.factories import UserFactory
+
 
 class TestTaskModel(TestCase):
     def setUp(self):

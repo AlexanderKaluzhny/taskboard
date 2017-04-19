@@ -6,34 +6,61 @@ function serializeForm(form) {
 }
 
 var TaskRequest = {
-  taskSubmitUrl: ['/tasks/', 'TASK ID HERE', '/'],
+  taskRootUrl: '/tasks/',
+  taskSubmitUrl: ['TASK ROOT HERE', 'TASK ID HERE', '/'],
+  task_test_reponse: {
+    // sample task object that can be used anywhere across the front-end
+    accomplished_by: null,
+    accomplished_by_username: null,
+    created_by: 1,
+    created_by_username: "alex",
+    description: "TEST_DESCRIPTION",
+    id: 10000000,
+    name: "TEST_TASK_NAME",
+    status: 0,
+    status_readable: "Not done",
+  },
 
   composeSubmitUrl: function(task) {
     var url = TaskRequest.taskSubmitUrl;
+    url[0] = TaskRequest.taskRootUrl;
     url[1] = task.id;
     return url.join('');
   },
-
-  patch: function(url, data, onSuccessHandler, onErrorHandler) {
-    $.ajax({
-      "type": "PATCH",
+  getRequestContext: function(method, url, data, onSuccessHandler, onErrorHandler) {
+    return {
+      "type": method,
       "dataType": "json",
       "url": url,
       "data": data,
       context: this,
       success: $.proxy(this.onRequestSuccess, this, onSuccessHandler),
       error: $.proxy(this.onRequestFailed, this, onErrorHandler),
-    });
+    };
+  },
+
+  test: function(url, data, onSuccessHandler, onErrorHandler) {
+    // returns a task object that can be used accross the front-end application.
+    onSuccessHandler(this.task_test_reponse);
+  },
+
+  post: function(url, data, onSuccessHandler, onErrorHandler) {
+    var postContext = this.getRequestContext('POST', url, data, onSuccessHandler, onErrorHandler);
+    $.ajax(
+      postContext
+    );
+  },
+  patch: function(url, data, onSuccessHandler, onErrorHandler) {
+    var patchContext = this.getRequestContext('PATCH', url, data, onSuccessHandler, onErrorHandler);
+    $.ajax(
+      patchContext
+    );
   },
   delete: function(url, onSuccessHandler, onErrorHandler) {
-    $.ajax({
-      "type": "DELETE",
-      "dataType": "json",
-      "url": url,
-      context: this,
-      success: $.proxy(this.onRequestSuccess, this, onSuccessHandler),
-      error: $.proxy(this.onRequestFailed, this, onErrorHandler),
-    });
+    var deleteContext = this.getRequestContext('DELETE', url, /* no data */ '', onSuccessHandler, onErrorHandler);
+    $.ajax(
+      deleteContext
+    );
   },
 
   onRequestSuccess: function(onSuccessHandler, data, textStatus, jqXHR) {
@@ -43,21 +70,32 @@ var TaskRequest = {
     onErrorHandler(xhr.status, error);
     console.log(error);
   },
-}
+};
 
-var TaskModalDialogTemplateRenderer = {
-  placeToRender: '.task-form-wrapper',
-
-  renderIntoDiv: function(temlateName, templateContext) {
-    var formTemplate = $(temlateName);
+var TaskTemplateRenderer = {
+  renderTemplate: function(templateName, templateContext) {
+    var formTemplate = $(templateName);
     var template = _.template(formTemplate.html());
     var html = template(templateContext);
-    var newDiv = $("<div></div>", {
+    return html;
+  },
+  renderIntoDiv: function(templateName, templateContext) {
+    var html = TaskTemplateRenderer.renderTemplate(templateName, templateContext);
+    var $newDiv = $("<div></div>", {
       html: html
     });
 
-    return newDiv;
+    return $newDiv;
   },
+  renderIntoPlacehoder: function(placeholder, temlateName, templateContext) {
+    var $div = this.renderIntoDiv(temlateName, templateContext);
+    $(placeholder).html($div);
+  },
+};
+
+var TaskModalDialogTemplateRenderer = Object.create(TaskTemplateRenderer);
+_.extend(TaskModalDialogTemplateRenderer, {
+  placeToRender: '.task-form-wrapper',
 
   render: function(temlateName, templateContext) {
     // render task data into template
@@ -65,12 +103,7 @@ var TaskModalDialogTemplateRenderer = {
     $(this.placeToRender).html($div);
     return $div;
   },
-
-  renderIntoPlacehoder: function(placeholder, temlateName, templateContext) {
-    var $div = this.renderIntoDiv(temlateName, templateContext);
-    $(placeholder).html($div);
-  },
-};
+});
 
 var TaskView = {
   // Contains the logic on updating of task information displayed in the columns
@@ -167,7 +200,7 @@ var TaskView = {
     var selector = TaskView.taskListItemFieldSelectors[taskField].selector;
     TaskView.updateTaskAccomplishedByColumn($taskRow, task, statusValue, selector);
   },
-  displayTaskButtons: function ($taskRow, task, buttonToSelectorsMapping) {
+  displayTaskButtons: function($taskRow, task, buttonToSelectorsMapping) {
     // display task action buttons based on task ownership.
     //
     var currentUserId = TaskListController.getCurrentUserId();
@@ -200,12 +233,14 @@ var TaskListController = {
   taskListItemSelector: '.task-list-item',
   taskListItemIdSelector: '.task-list-item#task-id-',
 
-  taskListItemDialogToggler: '.task-link-dialog-toggler',
+  taskListItemDialogTogglerSelector: '.task-link-dialog-toggler',
   listControlButtonSelectors: {
     'edit': '#edit-button',
     'delete': '#delete-button',
     'markAsDone': '#markdone-button',
   },
+  taskAddButtonSelector: '#add-button',
+  taskTableRowTemplate: '#task-table-row-template',
 
   getTaskRow: function(id) {
     var $taskRow = $(this.taskListItemIdSelector + id);
@@ -221,10 +256,13 @@ var TaskListController = {
     return task;
   },
 
-  updateTaskRow: function(id, task) {
-    var $taskRow = this.getTaskRow(id);
+  updateTaskRow: function ($taskRow, task) {
     this.updateRowDataAttributes($taskRow, task);
     TaskView.updateTaskColumns($taskRow, task);
+  },
+  updateTaskRowById: function(id, task) {
+    var $taskRow = this.getTaskRow(id);
+    this.updateTaskRow($taskRow, task);
   },
   updateRowDataAttributes: function($taskRow, task) {
     // updating  <tr class="task-list-item" ... data-...
@@ -232,6 +270,19 @@ var TaskListController = {
       $taskRow.data(key, value);
       $taskRow.attr('data-' + key, value);
     });
+  },
+  addTaskRow: function(task) {
+    var tr = TaskTemplateRenderer.renderTemplate(
+      this.taskTableRowTemplate, task
+    );
+    var $taskRow = $(tr);
+    // update task <tr id> property
+    var taskId = $taskRow.prop('id') + task.id;
+    $taskRow.prop('id', taskId);
+    // fill the task columns with values
+    this.updateTaskRow($taskRow, task);
+    // insert task into the table
+    $('#task-table-header').after($taskRow);
   },
   deleteTaskRow: function(id) {
     var $taskRow = this.getTaskRow(id);
@@ -241,14 +292,17 @@ var TaskListController = {
   assignListButtonHandlers: function() {
     // assign Edit button handler of the Task information form
     var $taskList = $(this.taskListSelector);
-    $taskList.find('.control-buttons').on('click', this.listControlButtonSelectors['edit'],
+    $taskList.on('click', '.control-buttons>' + this.listControlButtonSelectors['edit'],
       $.proxy(TaskListController.onTaskListEditButtonClick, TaskListController));
-    $taskList.find('.control-buttons').on('click', this.listControlButtonSelectors['delete'],
+    $taskList.on('click', '.control-buttons>' + this.listControlButtonSelectors['delete'],
       $.proxy(TaskListController.onTaskListDeleteButtonClick, TaskListController));
-    $taskList.find('.control-buttons').on('click', this.listControlButtonSelectors['markAsDone'],
+    $taskList.on('click', '.control-buttons>' + this.listControlButtonSelectors['markAsDone'],
       $.proxy(TaskListController.onTaskLiskMarkDoneButtonClick, TaskListController));
+    $(TaskListController.taskAddButtonSelector).click(
+      $.proxy(TaskListController.onTaskAddButtonClick, TaskListController)
+    );
   },
-  updateTaskColumnValues: function() {
+  processTaskColumnValuesInList: function() {
     $(this.taskListItemSelector).each(function(idx, taskRow) {
       var $taskRow = $(taskRow);
       var task = $taskRow.data();
@@ -290,34 +344,39 @@ var TaskListController = {
     TaskInformationForm.render(task);
     // propagate event so the modal window could be opened
   },
+  onTaskAddButtonClick: function(event) {
+    TaskAddForm.render();
+  },
 
   hideModalDialog: function() {
     $('#task-modal-form').modal('hide');
     $('.modal-backdrop').remove();
   },
 
-  getCurrentUserId: function(){
+  getCurrentUserId: function() {
     return $('#current-user-id').data('id');
   },
 
   init: function() {
-    $(this.taskListItemDialogToggler).on('click', this.onTaskListItemDialogToggle);
+    // TODO: handle list item click after adding of new test item.
+    $(this.taskListSelector).on('click',
+      this.taskListItemDialogTogglerSelector, this.onTaskListItemDialogToggle);
     this.assignListButtonHandlers();
-    this.updateTaskColumnValues();
+    this.processTaskColumnValuesInList();
   },
 }
 
-  $(function() {
-    $.ajaxPrefilter(function(settings, originalOptions, xhr) {
-      var csrftoken;
-      if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
-        // Send the token to same-origin, relative URLs only.
-        // Send the token only if the method warrants CSRF protection
-        // Using the CSRFToken value acquired earlier
-        csrftoken = getCookie('csrftoken');
-        xhr.setRequestHeader('X-CSRFToken', csrftoken);
-      }
-    });
+$(function() {
+  $.ajaxPrefilter(function(settings, originalOptions, xhr) {
+    var csrftoken;
+    if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+      // Send the token to same-origin, relative URLs only.
+      // Send the token only if the method warrants CSRF protection
+      // Using the CSRFToken value acquired earlier
+      csrftoken = getCookie('csrftoken');
+      xhr.setRequestHeader('X-CSRFToken', csrftoken);
+    }
+  });
 
-    TaskListController.init();
-  }());
+  TaskListController.init();
+}());1

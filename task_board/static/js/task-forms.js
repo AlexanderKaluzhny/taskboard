@@ -7,7 +7,7 @@ var TaskEditingForm = {
   onTaskEditedResponseSuccess: function(task) {
     // handles editing form server response
     TaskInformationForm.render(task);
-    TaskListController.updateTaskRow(task.id, task);
+    TaskListController.updateTaskRowById(task.id, task);
   },
   onTaskEditedResponseError: function(status, error) {
     ServerErrorForm.render(status, error);
@@ -50,6 +50,56 @@ var TaskEditingForm = {
 
     TaskModalDialogTemplateRenderer.render(TaskEditingForm.formTemplate, task);
     this.assignFormHandlers(task, dismissOnCancel);
+  },
+};
+
+// ============================================================================
+// ============================================================================
+
+var TaskAddForm = {
+  formTemplate: '#task-editing-form-template',
+  formSelector: '#task-editing-form',
+  submitButtonSelector: '#submit',
+  cancelButtonSelector: '#cancel',
+
+  onTaskEditedResponseSuccess: function(task) {
+    // handles editing form server response
+    TaskInformationForm.render(task);
+    TaskListController.addTaskRow(task);
+  },
+  onTaskEditedResponseError: function(status, error) {
+    ServerErrorForm.render(status, error);
+  },
+
+  onSubmitForm: function(event) {
+    // get form data and submit it
+    var $form = $(event.currentTarget);
+    var form_data = serializeForm($form);
+    var url = TaskRequest.taskRootUrl;
+    TaskRequest.post(url, form_data,
+      TaskAddForm.onTaskEditedResponseSuccess,
+      TaskAddForm.onTaskEditedResponseError
+    );
+
+    event.preventDefault();
+  },
+  onCancelForm: function() {
+      TaskListController.hideModalDialog();
+      return;
+  },
+
+  assignFormHandlers: function() {
+    $(this.formSelector).on('submit', $.proxy(this.onSubmitForm, this));
+    $(this.cancelButtonSelector).click(
+      $.proxy(this.onCancelForm, this)
+    );
+  },
+
+  render: function() {
+    // renders the TaskAddForm
+    //
+    TaskModalDialogTemplateRenderer.render(TaskAddForm.formTemplate, {});
+    this.assignFormHandlers();
   },
 };
 
@@ -199,7 +249,7 @@ var TaskMarkAsDoneForm = {
       task
     );
     // update task row on the main list
-    TaskListController.updateTaskRow(task.id, task);
+    TaskListController.updateTaskRowById(task.id, task);
   },
   onServerResponseError: function(status, error) {
     ServerErrorForm.render(status, error);

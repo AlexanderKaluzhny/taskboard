@@ -12,14 +12,17 @@
 <span id="current-user-id" data-id="{{ user.pk }}"></span>
 
 <div class="row task-list-page-header">
+  <div class="col-md-1">
+      <button id="add-button" class="btn btn-default" title="Add task" role="button" data-toggle="modal" data-target="#task-modal-form">
+        <i class="fa fa-plus" aria-hidden="true"></i>
+      </button>
+  </div>
   <div class="col-md-8">
     {% if paginator %}
     {% bootstrap_paginate paginator.page range=10 %}
     {% endif %}
   </div>
   <div class="col-md-3">
-  </div>
-  <div class="col-md-1">
     {% if filter_form %}
     <button style="float: right; " data-toggle="modal" data-target="#filtersModal"
             class="btn btn-default">
@@ -34,46 +37,14 @@
   <div class="col-md-12 task-list">
       <table class="table table-bordered">
         <tbody>
-        <tr class="active">
+        <tr id="task-table-header" class="active">
           <th class="text-center">Name</th>
           <th class="text-center">Owner</th>
           <th class="text-center">Status</th>
           <th class="text-center">Actions</th>
         </tr>
         {% for task in results %}
-        <tr class="task-list-item" id="task-id-{{ task.id }}" data-id="{{ task.id }}" data-name="{{ task.name }}"
-              data-created_by="{{ task.created_by }}" data-created_by_username="{{ task.created_by_username }}"
-              data-description="{{ task.description }}" data-accomplished_by="{{ task.accomplished_by }}" data-accomplished_by_username="{{ task.accomplished_by_username }}"
-              data-status="{{ task.status }}" data-status_readable="{{ task.status_readable }}">
-          <td class="col-md-6">
-            <a class="task-link-dialog-toggler task-name" role="button" href="#task-data-{{ forloop.counter }}" data-toggle="modal"
-                      data-target="#task-modal-form">
-              {{ task.name }}
-            </a>
-          </td>
-          <td class="col-md-2 text-center task-created-by-username">
-            {{ task.created_by_username }}
-          </td>
-          <td class="col-md-2 text-center">
-            <span class="task-status">{{ task.status_readable }}</span>
-            <span class="task-accomplished-by">
-            </span>
-          </td>
-          <td class="col-md-2 text-center">
-            <div class="control-buttons">
-              <button id="edit-button" class="submit btn btn-default" title="Edit" role="button" data-toggle="modal" data-target="#task-modal-form">
-                <i class="fa fa-pencil" aria-hidden="true"></i>
-              </button>
-              <button id="delete-button" class="submit btn btn-default" title="Delete" role="button" data-toggle="modal" data-target="#task-modal-form">
-                <i class="fa fa-trash" aria-hidden="true"></i>
-              </button>
-              <button id="markdone-button" class="submit btn btn-default" title="Mark as Done" role="button" data-toggle="modal" data-target="#task-modal-form">
-                <i class="fa fa-check-circle-o" aria-hidden="true"></i>
-              </button>
-            </div>
-          </td>
-        </tr>
-
+          {% include 'tasks/task_table_row.html' %}
         {% endfor %}
         </tbody>
       </table>
@@ -85,6 +56,10 @@
 {% endif %}
 
 {% include 'tasks/task-modal-form.html' %}
+
+<script type="text/html" id="task-table-row-template">
+  {% include 'tasks/task_table_row.html' %}
+</script>
 
 {% endblock content %}
 

@@ -1,13 +1,14 @@
 from django_filters.rest_framework import DjangoFilterBackend
 
 from rest_framework import mixins
-from rest_framework.generics import ListCreateAPIView, UpdateAPIView
+from rest_framework.generics import ListAPIView, UpdateAPIView, CreateAPIView
 from rest_framework.renderers import BrowsableAPIRenderer, JSONRenderer, TemplateHTMLRenderer
 from rest_framework.pagination import PageNumberPagination
 from rest_framework import filters
 from rest_framework.response import Response
+from rest_framework import status
 
-from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated, BasePermission
+from rest_framework.permissions import IsAuthenticated, BasePermission
 
 from braces.views import LoginRequiredMixin
 
@@ -66,7 +67,7 @@ class PaginationSettings(PageNumberPagination):
     page_size = 10
 
 
-class TaskListCreateView(LoginRequiredMixin, ListCreateAPIView):
+class TaskListCreateView(LoginRequiredMixin, ListAPIView):
     serializer_class = TaskSerializer
     pagination_class = PaginationSettings
 
@@ -83,6 +84,24 @@ class TaskListCreateView(LoginRequiredMixin, ListCreateAPIView):
     def get_queryset(self):
         # prefetch the User related information
         return Task.objects.all().select_related('created_by', 'accomplished_by')
+
+
+class TaskCreateView(CreateAPIView):
+    serializer_class = TaskSerializer
+    renderer_classes = (JSONRenderer, BrowsableAPIRenderer,)
+    permission_classes = (IsAuthenticated,)
+
+    def create(self, request, *args, **kwargs):
+        # add created_by user to the request.data
+        create_data = request.data.copy()
+        if not 'created_by' in create_data:
+            create_data['created_by'] = request.user.pk
+
+        serializer = self.get_serializer(data=create_data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
 
 class IsTaskOwnerOrMarkDoneOnly(BasePermission):
@@ -143,14 +162,14 @@ class TaskUpdateDeleteView(mixins.DestroyModelMixin, UpdateAPIView):
     def update(self, request, *args, **kwargs):
         partial = kwargs.pop('partial', False)
         instance = self.get_object()
-        data = request.data.copy()
+        # data = request.data.copy()
 
         # specify the user who accomplished the task if the status 'done' is set
-        if ('status' in request.data.keys()
-            and str(request.data['status']) == str(Task.STATUS_DONE)):
-            data['accomplished_by'] = request.user.pk
+        # if ('status' in request.data.keys()
+        #     and str(request.data['status']) == str(Task.STATUS_DONE)):
+        #     data['accomplished_by'] = request.user.pk
 
-        serializer = self.get_serializer(instance, data=data, partial=partial)
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
         serializer.is_valid(raise_exception=True)
         self.perform_update(serializer)
 

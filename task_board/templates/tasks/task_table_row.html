@@ -1,0 +1,32 @@
+<tr class="task-list-item" id="task-id-{{ task.id }}" data-id="{{ task.id }}" data-name="{{ task.name }}"
+      data-created_by="{{ task.created_by }}" data-created_by_username="{{ task.created_by_username }}"
+      data-description="{{ task.description }}" data-accomplished_by="{{ task.accomplished_by }}" data-accomplished_by_username="{{ task.accomplished_by_username }}"
+      data-status="{{ task.status }}" data-status_readable="{{ task.status_readable }}">
+  <td class="col-md-6">
+    <a class="task-link-dialog-toggler task-name" role="button" href="#task-information" data-toggle="modal"
+              data-target="#task-modal-form">
+      {{ task.name }}
+    </a>
+  </td>
+  <td class="col-md-2 text-center task-created-by-username">
+    {{ task.created_by_username }}
+  </td>
+  <td class="col-md-2 text-center">
+    <span class="task-status">{{ task.status_readable }}</span>
+    <span class="task-accomplished-by">
+    </span>
+  </td>
+  <td class="col-md-2 text-center">
+    <div class="control-buttons">
+      <button id="edit-button" class="submit btn btn-default" style="display: none;" title="Edit" role="button" data-toggle="modal" data-target="#task-modal-form" disabled>
+        <i class="fa fa-pencil" aria-hidden="true"></i>
+      </button>
+      <button id="delete-button" class="submit btn btn-default" style="display: none;" title="Delete" role="button" data-toggle="modal" data-target="#task-modal-form" disabled>
+        <i class="fa fa-trash" aria-hidden="true"></i>
+      </button>
+      <button id="markdone-button" class="submit btn btn-default" title="Mark as Done" role="button" data-toggle="modal" data-target="#task-modal-form" disabled>
+        <i class="fa fa-check-circle-o" aria-hidden="true"></i>
+      </button>
+    </div>
+  </td>
+</tr>
