@@ -358,7 +358,6 @@ var TaskListController = {
   },
 
   init: function() {
-    // TODO: handle list item click after adding of new test item.
     $(this.taskListSelector).on('click',
       this.taskListItemDialogTogglerSelector, this.onTaskListItemDialogToggle);
     this.assignListButtonHandlers();
@@ -379,4 +378,4 @@ $(function() {
   });
 
   TaskListController.init();
-}());1
+}());

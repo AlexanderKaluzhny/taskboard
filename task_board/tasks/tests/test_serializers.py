@@ -37,3 +37,27 @@ class TestTaskSerializer(TestCase):
         self.assertTrue(serializer.is_valid(), serializer.errors)
         instance = serializer.save()
         self.assertEqual(instance.created_by.pk, task_data['created_by'])
+
+    def test_accomplished_by_set(self):
+        # make sure the accomplished by is set based on the request.user if the status is 'Done'
+
+        task_data = dict(
+            name='sample task',
+            description='sample description',
+            status=Task.STATUS_DONE,
+        )
+
+        class MockRequest(object):
+            pass
+
+        request = MockRequest()
+        request.user = self.user
+
+        context = dict(request=request)
+
+        serializer = TaskSerializer(data=task_data, context=context)
+        self.assertEqual(serializer.initial_data['accomplished_by'], self.user.pk)
+
+        task_data['status'] = Task.STATUS_DEFAULT
+        serializer = TaskSerializer(data=task_data, context=context)
+        self.assertTrue(not 'accomplished_by' in serializer.initial_data)

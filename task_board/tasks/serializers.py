@@ -17,6 +17,8 @@ class TaskSerializer(serializers.ModelSerializer):
 
 
     def __init__(self, *args, **kwargs):
+
+        # specify the user who accomplished the task if the status 'done' is set
         if 'data' in kwargs and 'context' in kwargs and 'request' in kwargs['context']:
             request = kwargs['context']['request']
             data = kwargs['data']
