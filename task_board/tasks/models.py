@@ -8,6 +8,9 @@ from django.utils.encoding import python_2_unicode_compatible
 from task_board.users.models import User
 
 
+def queryset_exclude_done(qs):
+    return qs.exclude(status=Task.STATUS_DONE)
+
 @python_2_unicode_compatible
 class Task(models.Model):
     STATUS_DEFAULT = 0

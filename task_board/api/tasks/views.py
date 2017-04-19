@@ -1,3 +1,5 @@
+from django.utils.functional import cached_property
+
 from django_filters.rest_framework import DjangoFilterBackend
 
 from rest_framework import mixins
@@ -16,6 +18,7 @@ from task_board.tasks.models import Task
 from task_board.tasks.forms import TaskForm
 from task_board.tasks.serializers import TaskSerializer
 
+from .filtering import DoneTaskFilterManager
 
 class TemplateHTMLRendererBase(TemplateHTMLRenderer):
     """ Base class that converts the context into a dict """
@@ -59,6 +62,9 @@ class ListViewTemplateRenderer(TemplateHTMLRendererBase, BrowsableAPIRenderer):
         context['filter_form'] = self.get_filter_form(data, view, request)
         context['user'] = request.user
         context['task_editing_form'] = TaskForm()
+        context['tasksdone_checkbox'] = view.done_filter_manager.checkbox
+        # the 'checked' attribute that will be assigned to the checkbox
+        context['tasksdone_checkbox_is_checked'] = 'checked' if view.done_filter_manager.checkbox.is_checked else ''
 
         return context
 
@@ -67,7 +73,7 @@ class PaginationSettings(PageNumberPagination):
     page_size = 10
 
 
-class TaskListCreateView(LoginRequiredMixin, ListAPIView):
+class TaskListView(LoginRequiredMixin, ListAPIView):
     serializer_class = TaskSerializer
     pagination_class = PaginationSettings
 
@@ -81,9 +87,20 @@ class TaskListCreateView(LoginRequiredMixin, ListAPIView):
     }
     filter_fields = ['status']
 
+    @cached_property
+    def done_filter_manager(self):
+        return DoneTaskFilterManager()
+
     def get_queryset(self):
         # prefetch the User related information
         return Task.objects.all().select_related('created_by', 'accomplished_by')
+
+    def filter_queryset(self, queryset):
+        queryset = super(TaskListView, self).filter_queryset(queryset)
+
+        # custom logic for excluding of done tasks.
+        queryset = self.done_filter_manager.filter_queryset(self.request, queryset, self)
+        return queryset
 
 
 class TaskCreateView(CreateAPIView):

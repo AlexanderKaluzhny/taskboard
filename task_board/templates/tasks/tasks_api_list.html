@@ -17,20 +17,30 @@
         <i class="fa fa-plus" aria-hidden="true"></i>
       </button>
   </div>
-  <div class="col-md-8">
+  <div class="col-md-7">
     {% if paginator %}
     {% bootstrap_paginate paginator.page range=10 %}
     {% endif %}
   </div>
   <div class="col-md-3">
+    {% if tasksdone_checkbox.is_shown %}
+    <div class="checkbox" style="">
+      <a href="{{ tasksdone_checkbox.url }}">
+        <label><input type="checkbox" value="" {{ tasksdone_checkbox_is_checked }}
+                      onclick='window.location.assign("{{ tasksdone_checkbox.url }}")'>Don't show 'Done' tasks</label>
+      </a>
+    </div>
+    {% endif %}
+  </div>
+  <div class="col-md-1">
     {% if filter_form %}
     <button style="float: right; " data-toggle="modal" data-target="#filtersModal"
-            class="btn btn-default">
-      <span class="glyphicon glyphicon-wrench" aria-hidden="true"></span>
+            class="btn btn-default"> <span class="glyphicon glyphicon-wrench" aria-hidden="true"></span>
       Search
     </button>
+    {% endif %}
   </div>
-  {% endif %}
+
 </div>
 
 <div class="row">
