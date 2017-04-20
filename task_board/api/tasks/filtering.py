@@ -14,17 +14,23 @@ class CheckboxExcludeDoneTasks(object):
 
     @property
     def is_checked(self):
+        if not getattr(self, 'is_shown', True):
+            # if the checkbox is not shown, we set the checked state to False.
+            return False
+
         is_checked = getattr(self, '_is_checked', None)
-        # assert is_checked is not None, "checked attribute is not set, yet."
+        assert is_checked is not None, "checked attribute is not set, yet."
         return is_checked
 
     def set_checked(self, value, view):
         self._is_checked = value
-        self._url = self.build_url(view, checked=value)
+        self._url = self.build_url(view, is_checked=value)
 
     @classmethod
-    def build_url(self, view, checked=False):
-        """ Build url to be able to get queryset excluding done tasks """
+    def build_url(self, view, is_checked=False):
+        """ Build url to be able to get queryset excluding done tasks
+            If not checked - we are building a link where it is checked
+        """
 
         from django.http.request import iri_to_uri
 
@@ -39,7 +45,7 @@ class CheckboxExcludeDoneTasks(object):
             page_num = current_query_params.pop(view.pagination_class.page_query_param)
 
         # if it is not checked now - we are building a link where it is checked
-        if not checked:
+        if not is_checked:
             current_query_params['exclude_done'] = 'true'
         elif 'exclude_done' in current_query_params:
             current_query_params.pop('exclude_done')
