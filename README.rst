@@ -1,7 +1,9 @@
 Task Board
 ==========
 
-Test assignment. Task Board project. List of tasks. UI. Capability to edit tasks.
+Multi-user list of tasks including the Add, Edit, Delete, Mark as Done functions,
+searching, filtering. UI is built on top of REST-API.
+Python/Django, Django-REST-framework, JavaScript/jQuery/Underscore.js
 
 .. image:: https://img.shields.io/badge/built%20with-Cookiecutter%20Django-ff69b4.svg
      :target: https://github.com/pydanny/cookiecutter-django/
@@ -9,6 +11,24 @@ Test assignment. Task Board project. List of tasks. UI. Capability to edit tasks
 
 
 :License: MIT
+
+
+Implemented functionality
+-------------------------
+
+* API based Add, Edit, Delete, Mark as 'Done' functionality.
+* Multi-user. Task ownership.
+* API based UI.
+* All the forms are displayed in the modal dialog and rendered through the Underscore.js templates.
+* Deployed to Heroku free dyno `tasklisting.herokuapp.com`_ (so wait a little of it to wake up).
+
+.. _`tasklisting.herokuapp.com`: https://tasklisting.herokuapp.com
+
+Possible enhancements
+---------------------
+
+* Defer loading of task description, so it would be loaded at the moment the task information form is opened.
+* Defer loading of task form templates.
 
 
 Settings
@@ -32,6 +52,13 @@ Setting Up Your Users
 
 For convenience, you can keep your normal user logged in on Chrome and your superuser logged in on Firefox (or similar), so that you can see how the site behaves for both kinds of users.
 
+Setting Up Demo Users and their tasks
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+* Demo users are created dynamically during login as a demo user.
+* Or using the deployment.demo module functions.
+* Demo tasks are created using the deployment.demo functions.
+
 Test coverage
 ^^^^^^^^^^^^^
 
@@ -47,16 +74,6 @@ Running tests with py.test
 ::
 
   $ py.test
-
-Live reloading and Sass CSS compilation
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Moved to `Live reloading and SASS compilation`_.
-
-.. _`Live reloading and SASS compilation`: http://cookiecutter-django.readthedocs.io/en/latest/live-reloading-and-sass-compilation.html
-
-
-
 
 
 Deployment
