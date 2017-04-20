@@ -6,6 +6,7 @@ from django.conf.urls import url
 from . import views
 
 urlpatterns = [
+    url(r'^demo/$', views.DemoUserLoginView.as_view(), name='demo_login'),
     url(
         regex=r'^$',
         view=views.UserListView.as_view(),

@@ -5,6 +5,11 @@
 
 {% block head_title %}{% trans "Signup" %}{% endblock %}
 
+{% block content %}
+{% include 'account/demo_login.html' %}
+{{ block.super }}
+{% endblock %}
+
 {% block inner %}
 <h1>{% trans "Sign Up" %}</h1>
 

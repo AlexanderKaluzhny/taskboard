@@ -12,11 +12,14 @@ def _create_user(username, password=u'password'):
     return user
 
 
-def create_demo_stuff():
+def create_demo_users():
     for name in demo_users:
         user = _create_user(username=name)
-        utils.create_sample_tasks(user)
 
+def create_demo_tasks():
+    for name in demo_users:
+        user = User.objects.get(username=name)
+        utils.create_sample_tasks(user)
 
 def delete_demo_stuff():
     for name in demo_users:
