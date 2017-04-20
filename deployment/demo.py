@@ -1,7 +1,7 @@
 from task_board.tasks import utils
 from task_board.users.models import User
 
-demo_users = ['bob', 'alice', 'paul']
+demo_users = ['bob', 'alice']
 
 
 def _create_user(username, password=u'password'):
