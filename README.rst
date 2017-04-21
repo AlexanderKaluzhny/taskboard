@@ -29,6 +29,7 @@ Possible enhancements
 
 * Defer loading of task description, so it would be loaded at the moment the task information form is opened.
 * Defer loading of task form templates.
+* Rich text editing for task description.
 
 
 Settings
