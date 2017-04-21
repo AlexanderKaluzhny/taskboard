@@ -70,7 +70,7 @@ class ListViewTemplateRenderer(TemplateHTMLRendererBase, BrowsableAPIRenderer):
 
 
 class PaginationSettings(PageNumberPagination):
-    page_size = 10
+    page_size = 25
 
 
 class TaskListView(LoginRequiredMixin, ListAPIView):
