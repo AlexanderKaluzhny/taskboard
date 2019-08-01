@@ -8,8 +8,6 @@ https://docs.djangoproject.com/en/dev/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/dev/ref/settings/
 """
-from __future__ import absolute_import, unicode_literals
-
 import environ
 
 ROOT_DIR = environ.Path(__file__) - 3  # (task_board/config/settings/base.py - 3 = task_board/)

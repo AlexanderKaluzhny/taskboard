@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
-from __future__ import absolute_import, unicode_literals
-
 from django.conf.urls import url
 
 from . import views
+
+
+app_name = 'users'
 
 urlpatterns = [
     url(r'^demo/$', views.DemoUserLoginView.as_view(), name='demo_login'),

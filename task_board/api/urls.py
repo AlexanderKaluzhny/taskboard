@@ -2,6 +2,7 @@ from django.conf.urls import url, include
 
 from task_board.api.tasks import views
 
+app_name = 'api-v1'
 
 urlpatterns = [
     url(r'^$', views.TaskListView.as_view(), name='task-list'),
