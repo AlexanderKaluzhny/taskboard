@@ -11,6 +11,8 @@ Python/Django, Django-REST-framework, JavaScript/jQuery/Underscore.js
 
 
 :License: MIT
+:Python: 3.7.2
+:Django: 2.2.4
 
 
 Implemented functionality
@@ -31,13 +33,6 @@ Possible enhancements
 * Defer loading of task form templates.
 * Rich text editing for task description.
 
-
-Settings
---------
-
-Moved to settings_.
-
-.. _settings: http://cookiecutter-django.readthedocs.io/en/latest/settings.html
 
 Basic Commands
 --------------
@@ -62,31 +57,8 @@ Setting Up Demo Users and their tasks
 * Or using the **deployment.demo** module functions.
 * Demo tasks are created using the **deployment.demo** functions.
 
-Test coverage
-^^^^^^^^^^^^^
-
-To run the tests, check your test coverage, and generate an HTML coverage report::
-
-    $ coverage run manage.py test
-    $ coverage html
-    $ open htmlcov/index.html
-
-Running tests with py.test
-~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-::
-
-  $ py.test
-
-
-Deployment
-----------
-
-The following details how to deploy this application.
-
-
-Heroku
-^^^^^^
+Deployment to Heroku
+--------------------
 
 See detailed `cookiecutter-django Heroku documentation`_.
 
