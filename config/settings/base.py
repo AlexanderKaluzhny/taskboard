@@ -13,6 +13,9 @@ import environ
 ROOT_DIR = environ.Path(__file__) - 3  # (task_board/config/settings/base.py - 3 = task_board/)
 APPS_DIR = ROOT_DIR.path('task_board')
 
+BACKEND_DIR = ROOT_DIR
+FRONTEND_DIR = ROOT_DIR.path('frontend')
+
 # Load operating system environment variables and then prepare to use them
 env = environ.Env()
 
@@ -37,6 +40,8 @@ DJANGO_APPS = [
     'django.contrib.sessions',
     'django.contrib.sites',
     'django.contrib.messages',
+
+    'whitenoise.runserver_nostatic',
     'django.contrib.staticfiles',
 
     # Useful template tags:
@@ -71,6 +76,7 @@ INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 # ------------------------------------------------------------------------------
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -153,6 +159,7 @@ TEMPLATES = [
         # See: https://docs.djangoproject.com/en/dev/ref/settings/#template-dirs
         'DIRS': [
             str(APPS_DIR.path('templates')),
+            str(FRONTEND_DIR.path('build')),
         ],
         'OPTIONS': {
             # See: https://docs.djangoproject.com/en/dev/ref/settings/#template-debug
@@ -193,7 +200,13 @@ STATIC_URL = '/static/'
 # See: https://docs.djangoproject.com/en/dev/ref/contrib/staticfiles/#std:setting-STATICFILES_DIRS
 STATICFILES_DIRS = [
     str(APPS_DIR.path('static')),
+    str(FRONTEND_DIR.path('build').path('static')),
 ]
+
+# Static Assets
+# ------------------------
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+WHITENOISE_ROOT = str(FRONTEND_DIR.path('build').path('root'))
 
 # See: https://docs.djangoproject.com/en/dev/ref/contrib/staticfiles/#staticfiles-finders
 STATICFILES_FINDERS = [

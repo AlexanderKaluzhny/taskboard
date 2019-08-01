@@ -26,8 +26,8 @@ SECRET_KEY = env('DJANGO_SECRET_KEY')
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 # Use Whitenoise to serve static files
 # See: https://whitenoise.readthedocs.io/
-WHITENOISE_MIDDLEWARE = ['whitenoise.middleware.WhiteNoiseMiddleware', ]
-MIDDLEWARE = WHITENOISE_MIDDLEWARE + MIDDLEWARE
+# WHITENOISE_MIDDLEWARE = ['whitenoise.middleware.WhiteNoiseMiddleware', ]
+# MIDDLEWARE = WHITENOISE_MIDDLEWARE + MIDDLEWARE
 
 
 # SECURITY CONFIGURATION
@@ -89,10 +89,10 @@ AWS_HEADERS = {
 MEDIA_URL = 'https://s3.amazonaws.com/%s/' % AWS_STORAGE_BUCKET_NAME
 
 
-# Static Assets
-# ------------------------
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
-
+# # Static Assets
+# # ------------------------
+# STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+#
 
 # EMAIL
 # ------------------------------------------------------------------------------
