@@ -1,0 +1,45 @@
+[[source]]
+name = "pypi"
+url = "https://pypi.org/simple"
+verify_ssl = true
+
+[dev-packages]
+pudb = "*"
+coverage = "*"
+django-coverage-plugin = "*"
+sphinx = "*"
+django-extensions = "*"
+werkzeug = "*"
+django-test-plus = "*"
+factory-boy = "*"
+ipython = "*"
+tqdm = "*"
+pytest-django = "*"
+pytest-sugar = "*"
+
+[packages]
+django-environ = "*"
+whitenoise = "*"
+django-braces = "*"
+django-crispy-forms = "*"
+django-model-utils = "*"
+argon2-cffi = "*"
+django-allauth = "*"
+psycopg2 = "*"
+awesome-slugify = "*"
+pytz = "*"
+django-redis = "*"
+redis = "*"
+djangorestframework = "*"
+django-bootstrap-pagination = "*"
+django-filter = "*"
+gevent = "*"
+gunicorn = "*"
+boto = "*"
+django-storages-redux = "*"
+django-anymail = "*"
+Django = "*"
+Pillow = "*"
+
+[requires]
+python_version = "3.7"
