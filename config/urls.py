@@ -7,11 +7,11 @@ from django.views.generic import TemplateView
 from django.views import defaults as default_views
 
 from task_board.api import urls as api_urls
+from task_board.tasks.views import TasksBoardIndexView
 
 
 urlpatterns = [
-    url(r'^', include(api_urls, namespace='api-v1')),
-    url(r'^$', TemplateView.as_view(template_name='index.html'), name='frontend-index'),
+    url(r'^$', TasksBoardIndexView.as_view(), name='frontend-index'),
     url(r'^about/$', TemplateView.as_view(template_name='pages/about.html'), name='about'),
 
     url(settings.ADMIN_URL, admin.site.urls),
@@ -19,6 +19,7 @@ urlpatterns = [
     url(r'^users/', include('task_board.users.urls', namespace='users')),
     url(r'^accounts/', include('allauth.urls')),
 
+    url(r'^', include(api_urls, namespace='api-v1')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 
