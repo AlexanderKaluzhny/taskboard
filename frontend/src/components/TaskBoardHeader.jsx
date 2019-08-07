@@ -1,9 +1,12 @@
 /* eslint-disable react/prefer-stateless-function */
 import React from 'react';
 import { Button } from 'react-bootstrap';
+import Pagination from './Pagination';
 
 class TaskBoardHeader extends React.Component {
   render() {
+    const { limit, tasksTotalNumber, onPageChange } = this.props;
+
     return (
       <div className="row task-list-page-header">
         <div className="col-md-1">
@@ -18,7 +21,15 @@ class TaskBoardHeader extends React.Component {
             <i className="fa fa-plus" aria-hidden="true" />
           </Button>
         </div>
-        <div className="col-md-7">{"<Pagination>"}</div>
+        <div className="col-md-7">
+          {!!tasksTotalNumber && (
+            <Pagination
+              limit={limit}
+              count={tasksTotalNumber}
+              onPageChange={onPageChange}
+            />
+          )}
+        </div>
         <div className="col-md-3">
           <div className="checkbox">
             <a href="{{ tasksdone_checkbox.url }}">
