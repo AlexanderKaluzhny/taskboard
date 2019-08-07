@@ -1,9 +1,6 @@
-from django.utils.functional import cached_property
-
 from django_filters.rest_framework import DjangoFilterBackend
 
-from rest_framework import mixins
-from rest_framework.generics import ListAPIView, UpdateAPIView, CreateAPIView
+from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework.renderers import BrowsableAPIRenderer, JSONRenderer, TemplateHTMLRenderer
 from rest_framework.pagination import LimitOffsetPagination
 from rest_framework import filters
@@ -74,7 +71,7 @@ class PaginationSettings(LimitOffsetPagination):
     pass
 
 
-class TaskListView(TaskBoardEndpoint, mixins.CreateModelMixin, ListAPIView):
+class TaskListView(TaskBoardEndpoint, ListCreateAPIView):
     serializer_class = TaskSerializer
     pagination_class = PaginationSettings
 
@@ -90,19 +87,9 @@ class TaskListView(TaskBoardEndpoint, mixins.CreateModelMixin, ListAPIView):
 
     # TODO: remove DoneTaskFilterManager
 
-    @cached_property
-    def done_filter_manager(self):
-        return DoneTaskFilterManager()
-
     def get_queryset(self):
         # prefetch the User related information
         return Task.objects.all().select_related('created_by', 'accomplished_by')
-
-    def filter_queryset(self, queryset):
-        queryset = super(TaskListView, self).filter_queryset(queryset)
-        # custom logic for excluding of done tasks.
-        # queryset = self.done_filter_manager.filter_queryset(self.request, queryset, self)
-        return queryset
 
     def create(self, request, *args, **kwargs):
         # add created_by user to the request.data
@@ -172,10 +159,10 @@ class IsTaskOwnerOrMarkDoneOnly(BasePermission):
         return True
 
 
-class TaskUpdateDeleteView(mixins.DestroyModelMixin, UpdateAPIView):
+class TaskUpdateDeleteView(TaskBoardEndpoint, RetrieveUpdateDestroyAPIView):
     # queryset = Task.objects.all()
     serializer_class = TaskSerializer
-    renderer_classes = (JSONRenderer,)
+    renderer_classes = (JSONRenderer, BrowsableAPIRenderer,)
     permission_classes = (IsAuthenticated, IsTaskOwnerOrMarkDoneOnly,)
 
     def delete(self, request, *args, **kwargs):

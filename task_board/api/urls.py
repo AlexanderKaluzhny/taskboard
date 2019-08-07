@@ -9,7 +9,7 @@ urlpatterns = [
     # path('old-view/', endpoints.TaskListView.as_view(), name='task-list'),
     path('tasks/', endpoints.TaskListView.as_view(), name='task-list'),
     # url(r'^tasks/$', endpoints.TaskCreateView.as_view(), name='task-create'),
-    path('tasks/<int:pk>)/', endpoints.TaskUpdateDeleteView.as_view(), name='task-update-delete'),
+    path('tasks/<int:pk>/', endpoints.TaskUpdateDeleteView.as_view(), name='task-update-delete'),
 
     path('globals/', AppGlobalsEndpoint.as_view())
 ]

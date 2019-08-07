@@ -13,9 +13,9 @@ class TaskStatuses(IntEnum):
     @classmethod
     def as_choices(cls):
         return (
-        (cls.NOT_DONE, "Not done"),
-        (cls.DONE, "Done")
-    )
+            (cls.NOT_DONE.value, "Not done"),
+            (cls.DONE.value, "Done")
+        )
 
 
 class TaskQuerySet(models.QuerySet):
