@@ -6,12 +6,14 @@ from task_board.api.tasks.views import IsTaskOwnerOrMarkDoneOnly
 from task_board.users.tests.factories import UserFactory
 from task_board.tasks import utils
 
-from task_board.tasks.models import Task
+from task_board.tasks.models import Task, TaskStatuses
 
 factory = APIRequestFactory()
 
+
 class MockView(object):
     pass
+
 
 class TestTaskOwnerOrMarkDoneOnlyPermission(TestCase):
 
@@ -83,7 +85,7 @@ class TestTaskOwnerOrMarkDoneOnlyPermission(TestCase):
             'some_unknown_field': 'unknown',
             'name': 'well known',
             'description': 'sample',
-            'status': Task.STATUS_DEFAULT
+            'status': TaskStatuses.NOT_DONE
         }
 
         # make sure updating of some arbitrary field set is forbidden
@@ -102,10 +104,10 @@ class TestTaskOwnerOrMarkDoneOnlyPermission(TestCase):
 
         # make sure updating only the status field is allowed when it is set to 'Done'
         updated_data.pop('description')
-        updated_data['status'] = Task.STATUS_DEFAULT
+        updated_data['status'] = TaskStatuses.NOT_DONE
         is_allowed = permission.has_object_permission(request, MockView(), obj)
         self.assertFalse(is_allowed)
-        updated_data['status'] = Task.STATUS_DONE
+        updated_data['status'] = TaskStatuses.DONE
         is_allowed = permission.has_object_permission(request, MockView(), obj)
         self.assertTrue(is_allowed, permission.message)
 

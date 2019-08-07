@@ -92,7 +92,7 @@ class TestDoneFilterManager(TestCase):
         create_sample_tasks(self.user)
         pks = Task.objects.values_list('id', flat=True)[:3]
         done_tasks = Task.objects.filter(pk__in=pks)
-        done_tasks.update(status=Task.STATUS_DONE, accomplished_by=self.user)
+        done_tasks.update(status=TaskStatuses.DONE, accomplished_by=self.user)
         self.done_task_pks = pks
 
     def test_status_filter_param(self):

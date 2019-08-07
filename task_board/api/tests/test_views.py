@@ -8,7 +8,7 @@ from rest_framework import status
 from task_board.api.tasks.views import TaskUpdateDeleteView, TaskCreateView
 from task_board.users.tests.factories import UserFactory
 from task_board.tasks import utils
-from task_board.tasks.models import Task
+from task_board.tasks.models import Task, TaskStatuses
 
 factory = APIRequestFactory()
 
@@ -32,12 +32,12 @@ class TestTaskUpdateDeleteView(TestCase):
     def test_update_accomplished_by_is_empty(self):
         # make sure the accomplished_by field remains empty on setting of status 'not done'
         obj = Task.objects.filter(created_by=self.user).first()
-        obj.status = Task.STATUS_DONE
+        obj.status = TaskStatuses.DONE
         obj.accomplished_by = self.user
         obj.save()
 
         json_data = json.dumps({
-            'status': Task.STATUS_DEFAULT,
+            'status': TaskStatuses.NOT_DONE,
         })
 
         # compose the patch request, get response
@@ -49,18 +49,18 @@ class TestTaskUpdateDeleteView(TestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         result_obj = Task.objects.get(pk=obj.pk)
-        self.assertTrue(result_obj.status is Task.STATUS_DEFAULT)
+        self.assertTrue(result_obj.status is TaskStatuses.NOT_DONE)
         self.assertTrue(result_obj.accomplished_by is None)
 
     def test_update_accomplished_by_is_set(self):
         # make sure the accomplished_by field is set on setting of status to 'Done'
 
         obj = Task.objects.filter(created_by=self.user).first()
-        self.assertTrue(obj.status is Task.STATUS_DEFAULT)
+        self.assertTrue(obj.status is TaskStatuses.NOT_DONE)
         self.assertTrue(obj.accomplished_by is None)
 
         json_data = json.dumps({
-            'status': Task.STATUS_DONE,
+            'status': TaskStatuses.DONE,
         })
 
         # compose the patch request, get response
@@ -72,7 +72,7 @@ class TestTaskUpdateDeleteView(TestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         result_obj = Task.objects.get(pk=obj.pk)
-        self.assertTrue(result_obj.status is Task.STATUS_DONE)
+        self.assertTrue(result_obj.status is TaskStatuses.DONE)
         self.assertTrue(result_obj.accomplished_by == self.user)
 
 
@@ -87,7 +87,7 @@ class TestCreateTaskView(TestCase):
         # make sure task is created
 
         task_data = dict(
-            status=Task.STATUS_DONE,
+            status=TaskStatuses.DONE,
             name='sample task',
             description='sample description',
         )
@@ -103,4 +103,3 @@ class TestCreateTaskView(TestCase):
 
         for k, v in task_data.items():
             self.assertEqual(response.data[k], task_data[k])
-

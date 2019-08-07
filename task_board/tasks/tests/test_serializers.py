@@ -1,6 +1,6 @@
 from test_plus.test import TestCase
 
-from task_board.tasks.models import Task
+from task_board.tasks.models import Task, TaskStatuses
 from task_board.tasks.serializers import TaskSerializer
 from task_board.users.tests.factories import UserFactory
 
@@ -12,7 +12,7 @@ class TestTaskSerializer(TestCase):
         self.task_data = dict(
             name='sample task',
             description='sample description',
-            status=Task.STATUS_DEFAULT,
+            status=TaskStatuses.NOT_DONE,
             created_by=self.user,
         )
 
@@ -44,7 +44,7 @@ class TestTaskSerializer(TestCase):
         task_data = dict(
             name='sample task',
             description='sample description',
-            status=Task.STATUS_DONE,
+            status=TaskStatuses.DONE,
         )
 
         class MockRequest(object):
@@ -58,6 +58,6 @@ class TestTaskSerializer(TestCase):
         serializer = TaskSerializer(data=task_data, context=context)
         self.assertEqual(serializer.initial_data['accomplished_by'], self.user.pk)
 
-        task_data['status'] = Task.STATUS_DEFAULT
+        task_data['status'] = TaskStatuses.NOT_DONE
         serializer = TaskSerializer(data=task_data, context=context)
         self.assertTrue(not 'accomplished_by' in serializer.initial_data)

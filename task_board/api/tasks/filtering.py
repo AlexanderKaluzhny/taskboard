@@ -1,5 +1,5 @@
 from django.utils.functional import cached_property
-from task_board.tasks.models import queryset_exclude_done
+from task_board.tasks.models import Task
 
 
 class CheckboxExcludeDoneTasks(object):
@@ -78,7 +78,7 @@ class DoneTaskFilterManager(object):
         # filter done tasks if '?exclude_done=true' specified
         exclude_done = request.query_params.get('exclude_done', None)
         if exclude_done:
-            queryset = queryset_exclude_done(queryset)
+            queryset = Task.objects.not_done(queryset)
             self.checkbox.set_checked(True, view)
             return queryset
 

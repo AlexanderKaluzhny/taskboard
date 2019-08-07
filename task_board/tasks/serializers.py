@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from task_board.tasks.models import Task
+from task_board.tasks.models import Task, TaskStatuses
 
 
 class TaskSerializer(serializers.ModelSerializer):
@@ -15,14 +15,13 @@ class TaskSerializer(serializers.ModelSerializer):
                   'accomplished_by', 'accomplished_by_username',
                   'status_readable']
 
-
     def __init__(self, *args, **kwargs):
 
         # specify the user who accomplished the task if the status 'done' is set
         if 'data' in kwargs and 'context' in kwargs and 'request' in kwargs['context']:
             request = kwargs['context']['request']
             data = kwargs['data']
-            if 'status' in data and str(data['status']) == str(Task.STATUS_DONE):
+            if 'status' in data and str(data['status']) == str(TaskStatuses.DONE):
                 data = kwargs['data'].copy()
                 data.update({'accomplished_by': request.user.pk})
                 kwargs['data'] = data
