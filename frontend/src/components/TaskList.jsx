@@ -8,6 +8,7 @@ class TaskList extends React.Component {
   state = {
     isLoaded: false,
     tasksList: [],
+    currentTotalNumber: 0,
   }
 
   componentDidMount() {
@@ -20,17 +21,33 @@ class TaskList extends React.Component {
     }
   }
 
+  getQueryParams() {
+    const { limit, offset, hideDoneTasks } = this.props.query;
+    let queryParams = { limit, offset };
+    if (hideDoneTasks) {
+      queryParams.status = '0';
+    }
+
+    return queryParams;
+  }
+
   fetchTasks() {
-    fetch(`api/tasks/?${qs.stringify(this.props.query)}`)
+    fetch(`api/tasks/?${qs.stringify(this.getQueryParams())}`)
       .then(res => res.json())
       .then(
         (result) => {
-          this.setState({
-            isLoaded: true,
-            tasksList: result.results,
-          });
+          this.setState(
+            {
+              isLoaded: true,
+              tasksList: result.results,
+              currentTotalNumber: result.count
+            },
+            () => {
+              this.props.onTotalNumberReceived(result.count);
+            }
+          );
         },
-        error => this.setState({ isLoaded: false, error }),
+        error => this.setState({ isLoaded: false, error })
       );
   }
 

@@ -3,16 +3,20 @@ import './App.css';
 import TaskBoardHeader from './components/TaskBoardHeader';
 import TaskList from './components/TaskList';
 
+const INITIAL_LIMIT = 25;
+const INITIAL_OFFSET = 0;
+
 class App extends React.Component {
   state = {
-    currentUserId: undefined,
-    tasksTotalNumber: undefined,
-    limit: 25,
-    offset: 0,
+    currentUserId: null,
+    tasksTotalNumber: null,
+    limit: INITIAL_LIMIT,
+    offset: INITIAL_OFFSET,
+    hideDoneTasks: false,
   };
 
   componentDidMount() {
-    fetch("api/globals/")
+    fetch('api/globals/')
       .then(res => res.json())
       .then(
         (result) => {
@@ -30,8 +34,30 @@ class App extends React.Component {
     this.setState({ offset });
   };
 
+  onTasksTotalNumberReceived = (newNumber) => {
+    if (this.state.tasksTotalNumber !== newNumber) {
+      this.setState({ tasksTotalNumber: newNumber });
+    }
+  }
+
+  onDoneTasksCheckbox = (checked) => {
+    if (this.state.hideDoneTasks !== checked) {
+      this.setState({
+        hideDoneTasks: checked,
+        limit: INITIAL_LIMIT,
+        offset: INITIAL_OFFSET,
+      });
+    }
+  }
+
   render() {
-    const { limit, offset, tasksTotalNumber, currentUserId } = this.state;
+    const {
+      limit,
+      offset,
+      tasksTotalNumber,
+      currentUserId,
+      hideDoneTasks,
+    } = this.state;
 
     return (
       <div className="App">
@@ -39,13 +65,16 @@ class App extends React.Component {
           tasksTotalNumber={tasksTotalNumber}
           limit={limit}
           onPageChange={this.onPageChanged}
+          onDoneTasksCheckbox={this.onDoneTasksCheckbox}
         />
         <TaskList
           currentUserId={currentUserId}
           query={{
             limit: limit,
             offset: offset,
+            hideDoneTasks: hideDoneTasks,
           }}
+          onTotalNumberReceived={this.onTasksTotalNumberReceived}
         />
       </div>
     );

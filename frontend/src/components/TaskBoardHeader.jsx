@@ -1,11 +1,11 @@
 /* eslint-disable react/prefer-stateless-function */
 import React from 'react';
-import { Button } from 'react-bootstrap';
+import { Button, Form } from 'react-bootstrap';
 import Pagination from './Pagination';
 
 class TaskBoardHeader extends React.Component {
   render() {
-    const { limit, tasksTotalNumber, onPageChange } = this.props;
+    const { limit, tasksTotalNumber, onPageChange, onDoneTasksCheckbox } = this.props;
 
     return (
       <div className="row task-list-page-header">
@@ -27,21 +27,17 @@ class TaskBoardHeader extends React.Component {
               limit={limit}
               count={tasksTotalNumber}
               onPageChange={onPageChange}
+              key={tasksTotalNumber}
             />
           )}
         </div>
         <div className="col-md-3">
           <div className="checkbox">
-            <a href="{{ tasksdone_checkbox.url }}">
-              <label>
-                <input
-                  type="checkbox"
-                  value=""
-                  onClick='window.location.assign("{{ tasksdone_checkbox.url }}")'
-                />
-                {"Don't show 'Done' tasks"}
-              </label>
-            </a>
+            <Form.Check
+              type="checkbox"
+              label={"Don't show 'Done' tasks"}
+              onChange={evt => onDoneTasksCheckbox(evt.target.checked)}
+            />
           </div>
         </div>
         <div className="col-md-1">

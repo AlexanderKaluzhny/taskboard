@@ -4,17 +4,6 @@ import { Button } from 'react-bootstrap';
 
 class TaskListItem extends React.Component {
   render() {
-    /* 
-      accomplished_by: 1
-      accomplished_by_username: "alice"
-      created_by: 1
-      created_by_username: "alice"
-      description: "Cras sit amet nibh libero, in gravida nulla. Nulla vel metus scelerisque ante sollicitudin commodo. Cras purus odio, vestibulum in vulputate at, tempus viverra turpis. Fusce condimentum nunc ac nisi v…"
-      id: 30
-      name: "Task number 15"
-      status: 1
-      status_readable: "Done" 
-    */
     // TODO: error handling
 
     const task = this.props.data;
