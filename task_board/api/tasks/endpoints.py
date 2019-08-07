@@ -5,20 +5,21 @@ from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import mixins
 from rest_framework.generics import ListAPIView, UpdateAPIView, CreateAPIView
 from rest_framework.renderers import BrowsableAPIRenderer, JSONRenderer, TemplateHTMLRenderer
-from rest_framework.pagination import PageNumberPagination
+from rest_framework.pagination import LimitOffsetPagination
 from rest_framework import filters
 from rest_framework.response import Response
 from rest_framework import status
 
 from rest_framework.permissions import IsAuthenticated, BasePermission
 
-from braces.views import LoginRequiredMixin
-
-from task_board.tasks.models import Task
+from task_board.tasks.models import Task, TaskStatuses
 from task_board.tasks.forms import TaskForm
 from task_board.tasks.serializers import TaskSerializer
 
+from task_board.api.abstract.endpoints import TaskBoardEndpoint
+
 from .filtering import DoneTaskFilterManager
+
 
 class TemplateHTMLRendererBase(TemplateHTMLRenderer):
     """ Base class that converts the context into a dict """
@@ -69,15 +70,15 @@ class ListViewTemplateRenderer(TemplateHTMLRendererBase, BrowsableAPIRenderer):
         return context
 
 
-class PaginationSettings(PageNumberPagination):
-    page_size = 25
+class PaginationSettings(LimitOffsetPagination):
+    pass
 
 
-class TaskListView(LoginRequiredMixin, ListAPIView):
+class TaskListView(TaskBoardEndpoint, mixins.CreateModelMixin, ListAPIView):
     serializer_class = TaskSerializer
     pagination_class = PaginationSettings
 
-    renderer_classes = (ListViewTemplateRenderer, JSONRenderer, BrowsableAPIRenderer,)
+    renderer_classes = (JSONRenderer, BrowsableAPIRenderer,)
     permission_classes = (IsAuthenticated,)
 
     filter_backends = (filters.SearchFilter, DjangoFilterBackend)
@@ -86,6 +87,8 @@ class TaskListView(LoginRequiredMixin, ListAPIView):
         'description': ['icontains'],
     }
     filter_fields = ['status']
+
+    # TODO: remove DoneTaskFilterManager
 
     @cached_property
     def done_filter_manager(self):
@@ -97,16 +100,9 @@ class TaskListView(LoginRequiredMixin, ListAPIView):
 
     def filter_queryset(self, queryset):
         queryset = super(TaskListView, self).filter_queryset(queryset)
-
         # custom logic for excluding of done tasks.
-        queryset = self.done_filter_manager.filter_queryset(self.request, queryset, self)
+        # queryset = self.done_filter_manager.filter_queryset(self.request, queryset, self)
         return queryset
-
-
-class TaskCreateView(CreateAPIView):
-    serializer_class = TaskSerializer
-    renderer_classes = (JSONRenderer, BrowsableAPIRenderer,)
-    permission_classes = (IsAuthenticated,)
 
     def create(self, request, *args, **kwargs):
         # add created_by user to the request.data
@@ -119,6 +115,12 @@ class TaskCreateView(CreateAPIView):
         self.perform_create(serializer)
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+
+# class TaskCreateView(CreateAPIView):
+#     serializer_class = TaskSerializer
+#     renderer_classes = (JSONRenderer, BrowsableAPIRenderer,)
+#     permission_classes = (IsAuthenticated,)
 
 
 class IsTaskOwnerOrMarkDoneOnly(BasePermission):
@@ -163,7 +165,7 @@ class IsTaskOwnerOrMarkDoneOnly(BasePermission):
                         ''.join(self.everybody_allowed_fields))
                     return False
 
-                if 'status' in request.data.keys() and str(request.data['status']) != str(Task.STATUS_DONE):
+                if 'status' in request.data.keys() and str(request.data['status']) != str(TaskStatuses.DONE):
                     self.message = 'the status can only be set to \'Done\' for not a task owner.'
                     return False
 

@@ -19,7 +19,7 @@ urlpatterns = [
     url(r'^users/', include('task_board.users.urls', namespace='users')),
     url(r'^accounts/', include('allauth.urls')),
 
-    url(r'^', include(api_urls, namespace='api-v1')),
+    url(r'^api/', include(api_urls, namespace='api-v1')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 

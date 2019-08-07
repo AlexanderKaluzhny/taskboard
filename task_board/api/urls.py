@@ -1,11 +1,15 @@
-from django.conf.urls import url, include
+from django.urls import path
 
-from task_board.api.tasks import views
+from task_board.api.tasks import endpoints
+from task_board.api.settings.endpoints import AppGlobalsEndpoint
 
 app_name = 'api-v1'
 
 urlpatterns = [
-    url(r'^old-view/$', views.TaskListView.as_view(), name='task-list'),
-    url(r'^tasks/$', views.TaskCreateView.as_view(), name='task-create'),
-    url(r'^tasks/(?P<pk>\d+)/$', views.TaskUpdateDeleteView.as_view(), name='task-update-delete'),
+    # path('old-view/', endpoints.TaskListView.as_view(), name='task-list'),
+    path('tasks/', endpoints.TaskListView.as_view(), name='task-list'),
+    # url(r'^tasks/$', endpoints.TaskCreateView.as_view(), name='task-create'),
+    path('tasks/<int:pk>)/', endpoints.TaskUpdateDeleteView.as_view(), name='task-update-delete'),
+
+    path('globals/', AppGlobalsEndpoint.as_view())
 ]
