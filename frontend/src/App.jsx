@@ -1,10 +1,15 @@
 import React from 'react';
+import memoizeOne from 'memoize-one';
 import './App.css';
 import TaskBoardHeader from './components/TaskBoardHeader';
 import TaskList from './components/TaskList';
 
 const INITIAL_LIMIT = 25;
 const INITIAL_OFFSET = 0;
+
+const getQueryObject = memoizeOne((limit, offset, hideDoneTasks) => {
+  return { limit, offset, hideDoneTasks };
+});
 
 class App extends React.Component {
   state = {
@@ -69,11 +74,7 @@ class App extends React.Component {
         />
         <TaskList
           currentUserId={currentUserId}
-          query={{
-            limit: limit,
-            offset: offset,
-            hideDoneTasks: hideDoneTasks,
-          }}
+          query={getQueryObject(limit, offset, hideDoneTasks)}
           onTotalNumberReceived={this.onTasksTotalNumberReceived}
         />
       </div>

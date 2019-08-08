@@ -5,6 +5,7 @@
   "dependencies": {
     "@craco/craco": "^5.2.4",
     "bootstrap": "^4.3.1",
+    "memoize-one": "^5.0.5",
     "prop-types": "^15.7.2",
     "query-string": "^6.8.2",
     "react": "^16.8.6",
