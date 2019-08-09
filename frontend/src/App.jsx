@@ -1,6 +1,7 @@
 import React from 'react';
 import memoizeOne from 'memoize-one';
 import './App.css';
+import NavBar from './components/NavBar';
 import TaskBoardHeader from './components/TaskBoardHeader';
 import TaskList from './components/TaskList';
 
@@ -66,6 +67,7 @@ class App extends React.Component {
 
     return (
       <div className="App">
+        <NavBar />
         <TaskBoardHeader
           tasksTotalNumber={tasksTotalNumber}
           limit={limit}
