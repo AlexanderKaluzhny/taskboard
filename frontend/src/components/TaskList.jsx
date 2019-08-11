@@ -1,8 +1,8 @@
 /* eslint-disable react/prefer-stateless-function */
 import React from 'react';
 import qs from 'query-string';
-
 import TaskListItem from './TaskListItem';
+import TaskListTable from './Table';
 
 class TaskList extends React.Component {
   state = {
@@ -22,10 +22,10 @@ class TaskList extends React.Component {
   }
 
   getQueryParams() {
-    const { limit, offset, hideDoneTasks } = this.props.query;
+    const { limit, offset, statusFilter } = this.props.query;
     let queryParams = { limit, offset };
-    if (hideDoneTasks) {
-      queryParams.status = '0';
+    if (statusFilter !== '-1') {
+      queryParams.status = statusFilter;
     }
 
     return queryParams;
@@ -53,34 +53,25 @@ class TaskList extends React.Component {
 
   render() {
     const { error } = this.state;
-    const { currentUserId, tasksList } = this.state;
+    const { tasksList } = this.state;
+    const { currentUserId, statusFilter } = this.props;
+    const { onStatusFilterChanged } = this.props;
 
     return (
-      <div className="row">
-        <div className="col-md-12">
-          <table className="table table-bordered">
-            <tbody>
-              <tr id="task-table-header" className="active">
-                <th className="text-center">Name</th>
-                <th className="text-center">Owner</th>
-                <th className="text-center">Status</th>
-                <th className="text-center">Actions</th>
-              </tr>
-              {tasksList.length > 0
-                && tasksList.map(listItem => (
-                  <TaskListItem
-                    id={listItem.id}
-                    key={listItem.id}
-                    data={listItem}
-                    currentUserId={currentUserId}
-                  />
-                ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
+      <TaskListTable statusFilter={statusFilter} onStatusFilterChanged={onStatusFilterChanged}>
+        {tasksList.length > 0 &&
+          tasksList.map(listItem => (
+            <TaskListItem
+              id={listItem.id}
+              key={listItem.id}
+              data={listItem}
+              currentUserId={currentUserId}
+            />
+          ))}
+      </TaskListTable>
     );
   }
 }
+
 
 export default TaskList;

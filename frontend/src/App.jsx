@@ -8,8 +8,8 @@ import TaskList from './components/TaskList';
 const INITIAL_LIMIT = 25;
 const INITIAL_OFFSET = 0;
 
-const getQueryObject = memoizeOne((limit, offset, hideDoneTasks) => {
-  return { limit, offset, hideDoneTasks };
+const getQueryObject = memoizeOne((limit, offset, statusFilter) => {
+  return { limit, offset, statusFilter };
 });
 
 class App extends React.Component {
@@ -18,7 +18,7 @@ class App extends React.Component {
     tasksTotalNumber: null,
     limit: INITIAL_LIMIT,
     offset: INITIAL_OFFSET,
-    hideDoneTasks: false,
+    statusFilter: '-1',
   };
 
   componentDidMount() {
@@ -29,6 +29,7 @@ class App extends React.Component {
           this.setState({
             tasksTotalNumber: result.tasks_total,
             currentUserId: result.current_user,
+            // currentUserName
           });
         },
         error => this.setState({ error }),
@@ -40,19 +41,13 @@ class App extends React.Component {
     this.setState({ offset });
   };
 
+  onTaskStatusFilterChanged = (selectedValue) => {
+    this.setState({ statusFilter: selectedValue });
+  }
+
   onTasksTotalNumberReceived = (newNumber) => {
     if (this.state.tasksTotalNumber !== newNumber) {
       this.setState({ tasksTotalNumber: newNumber });
-    }
-  }
-
-  onDoneTasksCheckbox = (checked) => {
-    if (this.state.hideDoneTasks !== checked) {
-      this.setState({
-        hideDoneTasks: checked,
-        limit: INITIAL_LIMIT,
-        offset: INITIAL_OFFSET,
-      });
     }
   }
 
@@ -62,7 +57,7 @@ class App extends React.Component {
       offset,
       tasksTotalNumber,
       currentUserId,
-      hideDoneTasks,
+      statusFilter,
     } = this.state;
 
     return (
@@ -72,12 +67,13 @@ class App extends React.Component {
           tasksTotalNumber={tasksTotalNumber}
           limit={limit}
           onPageChange={this.onPageChanged}
-          onDoneTasksCheckbox={this.onDoneTasksCheckbox}
         />
         <TaskList
           currentUserId={currentUserId}
-          query={getQueryObject(limit, offset, hideDoneTasks)}
+          query={getQueryObject(limit, offset, statusFilter)}
+          statusFilter={statusFilter}
           onTotalNumberReceived={this.onTasksTotalNumberReceived}
+          onStatusFilterChanged={this.onTaskStatusFilterChanged}
         />
       </div>
     );
