@@ -22,10 +22,13 @@ class TaskList extends React.Component {
   }
 
   getQueryParams() {
-    const { limit, offset, statusFilter } = this.props.query;
+    const { searchValue, limit, offset, statusFilter } = this.props.query;
     let queryParams = { limit, offset };
     if (statusFilter !== '-1') {
       queryParams.status = statusFilter;
+    }
+    if (!!searchValue) {
+      queryParams.search = searchValue;
     }
 
     return queryParams;

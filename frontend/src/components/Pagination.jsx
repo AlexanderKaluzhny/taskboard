@@ -56,9 +56,11 @@ const useStyles = makeStyles(theme => ({
 function Pagination(props) {
   const classes = useStyles();
   const pageCount = Math.ceil(props.count / props.limit);
+  const currentPage = !!props.offset ? Math.floor(props.count / props.offset) : 0;
 
   return (
     <ReactPaginate
+      forcePage={currentPage}
       previousLabel={' prev '}
       nextLabel={' next '}
       breakLabel={'...'}

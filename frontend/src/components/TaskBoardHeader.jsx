@@ -1,12 +1,23 @@
 /* eslint-disable react/prefer-stateless-function */
 import React from 'react';
+import { styled } from '@material-ui/core/styles';
 import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';
+import SearchBar from 'material-ui-search-bar';
 import Pagination from './Pagination';
 
+const StyledSearchBar = styled(SearchBar)({
+  marginBlockStart: '1em',
+  marginBlockEnd: '1em',
+});
+
 class TaskBoardHeader extends React.Component {
+  state = {
+    searchValue: '',
+  }
+
   render() {
-    const { limit, tasksTotalNumber, onPageChange } = this.props;
+    const { limit, offset, tasksTotalNumber, onPageChange, onSearchRequested } = this.props;
 
     return (
       <React.Fragment>
@@ -26,22 +37,19 @@ class TaskBoardHeader extends React.Component {
             {!!tasksTotalNumber && (
               <Pagination
                 limit={limit}
+                offset={offset}
                 count={tasksTotalNumber}
                 onPageChange={onPageChange}
-                key={tasksTotalNumber}
               />
             )}
           </Grid>
-          <Grid item xs={3}>
-          </Grid>
-          <Grid item xs={1}>
-            <Button variant="contained">
-              <span
-                className="glyphicon glyphicon-wrench"
-                aria-hidden="true"
-              />
-              Search
-            </Button>
+          <Grid item xs={4}>
+            <StyledSearchBar
+              value={this.state.searchValue}
+              onChange={newValue => this.setState({ searchValue: newValue })}
+              onCancelSearch={() => onSearchRequested(null)}
+              onRequestSearch={() => onSearchRequested(this.state.searchValue)}
+            />
           </Grid>
         </Grid>
       </React.Fragment>

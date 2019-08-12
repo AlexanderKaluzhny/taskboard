@@ -5,20 +5,22 @@ import NavBar from './components/NavBar';
 import TaskBoardHeader from './components/TaskBoardHeader';
 import TaskList from './components/TaskList';
 
-const INITIAL_LIMIT = 25;
-const INITIAL_OFFSET = 0;
+const DEFAULT_LIMIT = 25;
+const DEFAULT_OFFSET = 0;
+const DEFAULT_STATUS_FILTER = '-1';
 
-const getQueryObject = memoizeOne((limit, offset, statusFilter) => {
-  return { limit, offset, statusFilter };
+const getQueryObject = memoizeOne((searchValue, limit, offset, statusFilter) => {
+  return { searchValue, limit, offset, statusFilter };
 });
 
 class App extends React.Component {
   state = {
     currentUserId: null,
     tasksTotalNumber: null,
-    limit: INITIAL_LIMIT,
-    offset: INITIAL_OFFSET,
-    statusFilter: '-1',
+    limit: DEFAULT_LIMIT,
+    offset: DEFAULT_OFFSET,
+    statusFilter: DEFAULT_STATUS_FILTER,
+    searchValue: '',
   };
 
   componentDidMount() {
@@ -42,7 +44,24 @@ class App extends React.Component {
   };
 
   onTaskStatusFilterChanged = (selectedValue) => {
-    this.setState({ statusFilter: selectedValue });
+    if (this.state.statusFilter !== selectedValue) {
+      this.setState({
+        limit: DEFAULT_LIMIT,
+        offset: DEFAULT_OFFSET,
+        statusFilter: selectedValue,
+      });
+    }
+  }
+
+  onSearchRequested = (value) => {
+    if (this.state.searchValue !== value) {
+      this.setState({
+        searchValue: value,
+        limit: DEFAULT_LIMIT,
+        offset: DEFAULT_OFFSET,
+        statusFilter: DEFAULT_STATUS_FILTER,
+      });
+    }
   }
 
   onTasksTotalNumberReceived = (newNumber) => {
@@ -53,6 +72,7 @@ class App extends React.Component {
 
   render() {
     const {
+      searchValue,
       limit,
       offset,
       tasksTotalNumber,
@@ -66,11 +86,13 @@ class App extends React.Component {
         <TaskBoardHeader
           tasksTotalNumber={tasksTotalNumber}
           limit={limit}
+          offset={offset}
           onPageChange={this.onPageChanged}
+          onSearchRequested={this.onSearchRequested}
         />
         <TaskList
           currentUserId={currentUserId}
-          query={getQueryObject(limit, offset, statusFilter)}
+          query={getQueryObject(searchValue, limit, offset, statusFilter)}
           statusFilter={statusFilter}
           onTotalNumberReceived={this.onTasksTotalNumberReceived}
           onStatusFilterChanged={this.onTaskStatusFilterChanged}
