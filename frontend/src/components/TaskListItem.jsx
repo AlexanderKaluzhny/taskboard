@@ -1,30 +1,11 @@
 /* eslint-disable react/prefer-stateless-function */
 import React from 'react';
 import { Button } from 'react-bootstrap';
+import Link from '@material-ui/core/Link';
 import TableCell from '@material-ui/core/TableCell';
 import TableRow from '@material-ui/core/TableRow';
-import MuiBadge from '@material-ui/core/Badge';
-import { styled } from '@material-ui/core/styles';
-
-const DoneBadge = styled(MuiBadge)({
-  minWidth: '3rem',
-  padding: '0 6px',
-  textAlign: 'center',
-  // -webkit-box-sizing: 'border-box',
-  boxSizing: 'border-box',
-
-  fontWeight: '300',
-  fontSize: '0.9rem',
-  backgroundColor: '#26a69a',
-  borderRadius: '2px',
-
-  color: "white",
-});
-
-const NotDoneBadge = styled(DoneBadge)({
-  backgroundColor: "#337ab7",
-});
-
+import Typography from '@material-ui/core/Typography';
+import { DoneBadge, NotDoneBadge } from './Badges';
 
 class TaskListItem extends React.Component {
   render() {
@@ -36,23 +17,37 @@ class TaskListItem extends React.Component {
     return (
       <TableRow>
         <TableCell component="th" scope="row">
-          {task.name}
+          <Typography>
+            <Link
+              component="button"
+              variant="body1"
+              onClick={() => this.props.onTaskNameClick()}
+            >
+              {task.name}
+            </Link>
+          </Typography>
         </TableCell>
-        <TableCell align='center'>{task.created_by_username}</TableCell>
-        <TableCell align='center'>
+        <TableCell align="center">
+          <Typography caption="body1">
+            {task.created_by_username}
+          </Typography>
+        </TableCell>
+        <TableCell align="center">
           {task.accomplished_by && (
             <React.Fragment>
               <DoneBadge>{task.status_readable}</DoneBadge>
-              <span className="task-accomplished-by">
-                {`by ${task.accomplished_by_username}`}
-              </span>
+              <Typography variant='caption'>
+                <span className="task-accomplished-by">
+                  {`by ${task.accomplished_by_username}`}
+                </span>
+              </Typography>
             </React.Fragment>
           )}
           {!task.accomplished_by && (
             <NotDoneBadge>{task.status_readable}</NotDoneBadge>
           )}
         </TableCell>
-        <TableCell align='center'>
+        <TableCell align="center">
           {isOwnedByUser && (
             <React.Fragment>
               <Button

@@ -30,11 +30,11 @@ class App extends React.Component {
         (result) => {
           this.setState({
             tasksTotalNumber: result.tasks_total,
-            currentUserId: result.current_user,
+            currentUserId: result.current_user
             // currentUserName
           });
         },
-        error => this.setState({ error }),
+        error => this.setState({ error })
       );
   }
 
@@ -48,10 +48,10 @@ class App extends React.Component {
       this.setState({
         limit: DEFAULT_LIMIT,
         offset: DEFAULT_OFFSET,
-        statusFilter: selectedValue,
+        statusFilter: selectedValue
       });
     }
-  }
+  };
 
   onSearchRequested = (value) => {
     if (this.state.searchValue !== value) {
@@ -59,16 +59,16 @@ class App extends React.Component {
         searchValue: value,
         limit: DEFAULT_LIMIT,
         offset: DEFAULT_OFFSET,
-        statusFilter: DEFAULT_STATUS_FILTER,
+        statusFilter: DEFAULT_STATUS_FILTER
       });
     }
-  }
+  };
 
   onTasksTotalNumberReceived = (newNumber) => {
     if (this.state.tasksTotalNumber !== newNumber) {
       this.setState({ tasksTotalNumber: newNumber });
     }
-  }
+  };
 
   render() {
     const {

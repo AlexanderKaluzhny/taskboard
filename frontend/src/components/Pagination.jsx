@@ -61,8 +61,8 @@ function Pagination(props) {
   return (
     <ReactPaginate
       forcePage={currentPage}
-      previousLabel={' prev '}
-      nextLabel={' next '}
+      previousLabel={' ← '}
+      nextLabel={' → '}
       breakLabel={'...'}
       pageCount={pageCount}
       marginPagesDisplayed={2}
