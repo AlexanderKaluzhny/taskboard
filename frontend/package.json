@@ -7,6 +7,8 @@
     "@material-ui/core": "^4.3.1",
     "@material-ui/icons": "^4.2.1",
     "bootstrap": "^4.3.1",
+    "formik": "^1.5.8",
+    "jquery": "^3.4.1",
     "material-ui-search-bar": "^1.0.0-beta.13",
     "memoize-one": "^5.0.5",
     "prop-types": "^15.7.2",

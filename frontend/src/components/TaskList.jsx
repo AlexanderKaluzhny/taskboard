@@ -3,7 +3,14 @@ import React from 'react';
 import qs from 'query-string';
 import TaskListItem from './TaskListItem';
 import TaskListTable from './Table';
-import TaskInfoDialog from './Dialogs';
+import TaskInfoDialog from './dialogs/InfoDialog';
+import TaskEditDialog from './dialogs/EditDialog';
+
+const taskActions = {
+  None: 0,
+  ShowTaskInfo: 1,
+  EditTask: 2,
+};
 
 class TaskList extends React.Component {
   state = {
@@ -11,7 +18,7 @@ class TaskList extends React.Component {
     taskList: [],
     currentTotalNumber: 0,
     showDialog: {
-      actionType: '',
+      actionType: taskActions.None,
       taskId: undefined,
     },
   }
@@ -39,7 +46,38 @@ class TaskList extends React.Component {
     return queryParams;
   }
 
-  onTaskAction = (actionType, taskId) => {
+  getDialog(showDialogSettings, taskList) {
+    let DialogComponent;
+    const { actionType, taskId } = showDialogSettings;
+
+    if (!actionType || !taskId) {
+      return null;
+    }
+
+    switch (actionType) {
+      case taskActions.ShowTaskInfo:
+        DialogComponent = TaskInfoDialog;
+        break;
+      case taskActions.EditTask:
+        DialogComponent = TaskEditDialog;
+        break;
+      default:
+        DialogComponent = null;
+        break;
+    }
+    if (!DialogComponent) {
+      return null;
+    }
+
+    return (
+      <DialogComponent
+        closeDialog={this.onDialogClose}
+        taskObject={taskList.find(task => task.id === taskId)}
+      />
+    );
+  }
+
+  setShowDialog = (actionType, taskId) => {
     this.setState({
       showDialog: { actionType, taskId },
     });
@@ -48,7 +86,6 @@ class TaskList extends React.Component {
   onDialogClose = () => {
     this.setState({ showDialog: {} });
   };
-
 
   fetchTasks() {
     fetch(`api/tasks/?${qs.stringify(this.getQueryParams())}`)
@@ -90,18 +127,12 @@ class TaskList extends React.Component {
                 key={listItem.id}
                 data={listItem}
                 currentUserId={currentUserId}
-                onTaskNameClick={() => this.onTaskAction('info', listItem.id)}
+                onTaskNameClick={() => this.setShowDialog(taskActions.ShowTaskInfo, listItem.id)}
+                onTaskEditClick={() => this.setShowDialog(taskActions.EditTask, listItem.id)}
               />
             ))}
         </TaskListTable>
-        {showDialogSettings.actionType && !!showDialogSettings.taskId && (
-          <TaskInfoDialog
-            closeDialog={this.onDialogClose}
-            taskObject={taskList.find(
-              task => task.id === showDialogSettings.taskId
-            )}
-          />
-        )}
+        {this.getDialog(showDialogSettings, taskList)}
       </React.Fragment>
     );
   }

@@ -10,7 +10,7 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-function HeaderStatusSortButton(props) {
+function HeaderStatusFilterSelect(props) {
   const classes = useStyles();
 
   return (
@@ -30,4 +30,4 @@ function HeaderStatusSortButton(props) {
   );
 }
 
-export default HeaderStatusSortButton;
+export default HeaderStatusFilterSelect;

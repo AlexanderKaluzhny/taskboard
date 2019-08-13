@@ -50,23 +50,14 @@ class TaskListItem extends React.Component {
         <TableCell align="center">
           {isOwnedByUser && (
             <React.Fragment>
-              <Button
-                id="edit-button"
-                className="submit btn btn-default"
+              <Button 
                 title="Edit"
-                role="button"
-                data-toggle="modal"
-                data-target="#task-modal-form"
+                onClick={() => this.props.onTaskEditClick()}
               >
                 <i className="fa fa-pencil" aria-hidden="true" />
               </Button>
               <Button
-                id="delete-button"
-                className="submit btn btn-default"
                 title="Delete"
-                role="button"
-                data-toggle="modal"
-                data-target="#task-modal-form"
               >
                 <i className="fa fa-trash" aria-hidden="true" />
               </Button>
