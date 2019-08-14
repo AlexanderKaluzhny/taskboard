@@ -6,15 +6,15 @@ from django.utils.translation import ugettext_lazy as _
 from task_board.users.models import User
 
 
-class TaskStatuses(IntEnum):
+class TaskStatuses(object):
     NOT_DONE = 0
     DONE = 1
 
     @classmethod
     def as_choices(cls):
         return (
-            (cls.NOT_DONE.value, "Not done"),
-            (cls.DONE.value, "Done")
+            (cls.NOT_DONE, "Not done"),
+            (cls.DONE, "Done")
         )
 
 

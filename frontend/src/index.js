@@ -1,8 +1,10 @@
+import jQuery from 'jquery';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
 import App from './App';
 import * as serviceWorker from './serviceWorker';
+import ajaxCsrfSetup from './utils';
 
 ReactDOM.render(<App />, document.getElementById('root'));
 
@@ -10,3 +12,9 @@ ReactDOM.render(<App />, document.getElementById('root'));
 // unregister() to register() below. Note this comes with some pitfalls.
 // Learn more about service workers: https://bit.ly/CRA-PWA
 serviceWorker.unregister();
+
+// setup jquery for CSRF tokens
+jQuery.ajaxSetup({
+  // jQuery won't allow using the ajaxCsrfSetup function directly
+  beforeSend: ajaxCsrfSetup
+});

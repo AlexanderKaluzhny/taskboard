@@ -1,17 +1,15 @@
 import React from 'react';
 import memoizeOne from 'memoize-one';
+import { SnackbarProvider } from 'notistack';
 import './App.css';
 import NavBar from './components/NavBar';
 import TaskBoardHeader from './components/TaskBoardHeader';
 import TaskList from './components/TaskList';
+import { DEFAULT_LIMIT, DEFAULT_OFFSET, DEFAULT_STATUS_FILTER } from './constants';
 
-const DEFAULT_LIMIT = 25;
-const DEFAULT_OFFSET = 0;
-const DEFAULT_STATUS_FILTER = '-1';
-
-const getQueryObject = memoizeOne((searchValue, limit, offset, statusFilter) => {
-  return { searchValue, limit, offset, statusFilter };
-});
+const getQueryObject = memoizeOne((searchValue, limit, offset, statusFilter) => ({
+  searchValue, limit, offset, statusFilter,
+}));
 
 class App extends React.Component {
   state = {
@@ -30,11 +28,11 @@ class App extends React.Component {
         (result) => {
           this.setState({
             tasksTotalNumber: result.tasks_total,
-            currentUserId: result.current_user
+            currentUserId: result.current_user,
             // currentUserName
           });
         },
-        error => this.setState({ error })
+        error => this.setState({ error }),
       );
   }
 
@@ -48,7 +46,7 @@ class App extends React.Component {
       this.setState({
         limit: DEFAULT_LIMIT,
         offset: DEFAULT_OFFSET,
-        statusFilter: selectedValue
+        statusFilter: selectedValue,
       });
     }
   };
@@ -59,7 +57,7 @@ class App extends React.Component {
         searchValue: value,
         limit: DEFAULT_LIMIT,
         offset: DEFAULT_OFFSET,
-        statusFilter: DEFAULT_STATUS_FILTER
+        statusFilter: DEFAULT_STATUS_FILTER,
       });
     }
   };
@@ -72,31 +70,28 @@ class App extends React.Component {
 
   render() {
     const {
-      searchValue,
-      limit,
-      offset,
-      tasksTotalNumber,
-      currentUserId,
-      statusFilter,
+      searchValue, limit, offset, tasksTotalNumber, currentUserId, statusFilter,
     } = this.state;
 
     return (
       <div className="App">
-        <NavBar />
-        <TaskBoardHeader
-          tasksTotalNumber={tasksTotalNumber}
-          limit={limit}
-          offset={offset}
-          onPageChange={this.onPageChanged}
-          onSearchRequested={this.onSearchRequested}
-        />
-        <TaskList
-          currentUserId={currentUserId}
-          query={getQueryObject(searchValue, limit, offset, statusFilter)}
-          statusFilter={statusFilter}
-          onTotalNumberReceived={this.onTasksTotalNumberReceived}
-          onStatusFilterChanged={this.onTaskStatusFilterChanged}
-        />
+        <SnackbarProvider anchorOrigin={{ vertical: 'top', horizontal: 'right' }} autoHideDuration={2000}>
+          <NavBar />
+          <TaskBoardHeader
+            tasksTotalNumber={tasksTotalNumber}
+            limit={limit}
+            offset={offset}
+            onPageChange={this.onPageChanged}
+            onSearchRequested={this.onSearchRequested}
+          />
+          <TaskList
+            currentUserId={currentUserId}
+            query={getQueryObject(searchValue, limit, offset, statusFilter)}
+            statusFilter={statusFilter}
+            onTotalNumberReceived={this.onTasksTotalNumberReceived}
+            onStatusFilterChanged={this.onTaskStatusFilterChanged}
+          />
+        </SnackbarProvider>
       </div>
     );
   }

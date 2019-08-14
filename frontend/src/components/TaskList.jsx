@@ -1,10 +1,11 @@
 /* eslint-disable react/prefer-stateless-function */
 import React from 'react';
-import qs from 'query-string';
+import { withSnackbar } from 'notistack';
 import TaskListItem from './TaskListItem';
 import TaskListTable from './Table';
 import TaskInfoDialog from './dialogs/InfoDialog';
 import TaskEditDialog from './dialogs/EditDialog';
+import withTasksApi from './withTasksApi';
 
 const taskActions = {
   None: 0,
@@ -15,35 +16,10 @@ const taskActions = {
 class TaskList extends React.Component {
   state = {
     isLoaded: false,
-    taskList: [],
-    currentTotalNumber: 0,
     showDialog: {
       actionType: taskActions.None,
       taskId: undefined,
     },
-  }
-
-  componentDidMount() {
-    this.fetchTasks();
-  }
-
-  componentDidUpdate(prevProps) {
-    if (prevProps.query !== this.props.query) {
-      this.fetchTasks();
-    }
-  }
-
-  getQueryParams() {
-    const { searchValue, limit, offset, statusFilter } = this.props.query;
-    let queryParams = { limit, offset };
-    if (statusFilter !== '-1') {
-      queryParams.status = statusFilter;
-    }
-    if (!!searchValue) {
-      queryParams.search = searchValue;
-    }
-
-    return queryParams;
   }
 
   getDialog(showDialogSettings, taskList) {
@@ -59,7 +35,7 @@ class TaskList extends React.Component {
         DialogComponent = TaskInfoDialog;
         break;
       case taskActions.EditTask:
-        DialogComponent = TaskEditDialog;
+        DialogComponent = withSnackbar(TaskEditDialog);
         break;
       default:
         DialogComponent = null;
@@ -71,6 +47,7 @@ class TaskList extends React.Component {
 
     return (
       <DialogComponent
+        onEditTask={this.props.onEditTask}
         closeDialog={this.onDialogClose}
         taskObject={taskList.find(task => task.id === taskId)}
       />
@@ -87,29 +64,8 @@ class TaskList extends React.Component {
     this.setState({ showDialog: {} });
   };
 
-  fetchTasks() {
-    fetch(`api/tasks/?${qs.stringify(this.getQueryParams())}`)
-      .then(res => res.json())
-      .then(
-        (result) => {
-          this.setState(
-            {
-              isLoaded: true,
-              taskList: result.results,
-              currentTotalNumber: result.count
-            },
-            () => {
-              this.props.onTotalNumberReceived(result.count);
-            }
-          );
-        },
-        error => this.setState({ isLoaded: false, error })
-      );
-  }
-
   render() {
-    const { error } = this.state;
-    const { taskList } = this.state;
+    const { taskList } = this.props;
     const { currentUserId, statusFilter } = this.props;
     const { onStatusFilterChanged } = this.props;
     const showDialogSettings = this.state.showDialog;
@@ -139,4 +95,4 @@ class TaskList extends React.Component {
 }
 
 
-export default TaskList;
+export default withTasksApi(TaskList);

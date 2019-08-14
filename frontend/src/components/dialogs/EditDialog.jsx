@@ -20,8 +20,8 @@ const useStyles = makeStyles(theme => ({
 }));
 
 const DialogContent = styled(MuiDialogContent)({
-  display: "flex",
-  flexDirection: "column",
+  display: 'flex',
+  flexDirection: 'column',
   justifyContent: 'space-evenly',
   minWidth: '50ch',
 });
@@ -44,12 +44,7 @@ const TaskFieldInput = ({
       <InputLabel ref={labelRef} htmlFor="component-outlined">
         {props.title}
       </InputLabel>
-      <OutlinedInput
-        id="component-outlined"
-        labelWidth={labelWidth}
-        {...field}
-        {...props}
-      />
+      <OutlinedInput id="component-outlined" labelWidth={labelWidth} {...field} {...props} />
     </FormControl>
   );
 };
@@ -87,28 +82,34 @@ const TaskFieldSelectStatus = ({
 class EditDialog extends React.Component {
   // TODO: show form errors
   render() {
-    const props = this.props;
+    const { props } = this;
     const { taskObject: task } = props;
 
     return (
-      <Dialog
-        open
-        onClose={props.closeDialog}
-        aria-labelledby="form-dialog-title"
-      >
-        <DialogTitle
-          id="customized-dialog-title"
-          onClose={props.closeDialog}
-        >
+      <Dialog open onClose={props.closeDialog} aria-labelledby="form-dialog-title">
+        <DialogTitle id="customized-dialog-title" onClose={props.closeDialog}>
           Edit Task
         </DialogTitle>
         <Formik
           initialValues={{ ...task }}
           onSubmit={(values, actions) => {
-            setTimeout(() => {
-              alert(JSON.stringify(values, null, 2));
-              actions.setSubmitting(false);
-            }, 1000);
+            const { name, status, description } = values;
+            props.onEditTask(
+              task.id,
+              { name, status, description },
+              (data) => {
+                actions.setSubmitting(false);
+                this.props.enqueueSnackbar(`Task "${name}" updated.`, { variant: 'success' });
+                this.props.closeDialog();
+              },
+              (status, error) => {
+                actions.setSubmitting(false);
+                actions.setStatus({
+                  error: true,
+                  msg: `Error ${status}: ${error}`,
+                });
+              },
+            );
           }}
           render={({
             values,
@@ -119,45 +120,20 @@ class EditDialog extends React.Component {
             handleBlur,
             handleChange,
             handleSubmit,
-            isSubmitting
+            isSubmitting,
           }) => (
             <Form>
               <DialogContent>
-                <Field
-                  type="text"
-                  name="name"
-                  title="Name"
-                  component={TaskFieldInput}
-                />
+                {status && status.error && <div style={{ color: 'red' }}>{status.msg}</div>}
+                <Field type="text" name="name" title="Name" component={TaskFieldInput} />
                 {errors.name && touched.name && <div>{errors.name}</div>}
-                <Field
-                  type="text"
-                  name="status"
-                  title="Status"
-                  component={TaskFieldSelectStatus}
-                />
-                {errors.status && touched.status && (
-                  <div>{errors.status}</div>
-                )}
-                <Field
-                  multiline
-                  type="text"
-                  name="description"
-                  title="Description"
-                  component={TaskFieldInput}
-                />
-                {errors.description && touched.description && (
-                  <div>{errors.description}</div>
-                )}
-                {status && status.msg && <div>{status.msg}</div>}
+                <Field type="text" name="status" title="Status" component={TaskFieldSelectStatus} />
+                {errors.status && touched.status && <div>{errors.status}</div>}
+                <Field multiline type="text" name="description" title="Description" component={TaskFieldInput} />
+                {errors.description && touched.description && <div>{errors.description}</div>}
               </DialogContent>
               <DialogActions>
-                <Button
-                  variant="outlined"
-                  type="submit"
-                  color="primary"
-                  disabled={isSubmitting || !dirty}
-                >
+                <Button variant="outlined" type="submit" color="primary" disabled={isSubmitting || !dirty}>
                   Apply
                 </Button>
                 <Button variant="outlined" color="secondary" onClick={props.closeDialog}>
