@@ -5,6 +5,7 @@ import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';
 import SearchBar from 'material-ui-search-bar';
 import Pagination from './Pagination';
+import { taskActions } from '../constants';
 
 const StyledSearchBar = styled(SearchBar)({
   marginBlockStart: '1em',
@@ -14,33 +15,29 @@ const StyledSearchBar = styled(SearchBar)({
 class TaskBoardHeader extends React.Component {
   state = {
     searchValue: '',
-  }
+  };
 
   render() {
-    const { limit, offset, tasksTotalNumber, onPageChange, onSearchRequested } = this.props;
+    const {
+      limit, offset, tasksTotalNumber, onPageChange, onSearchRequested, setShowDialog,
+    } = this.props;
 
     return (
       <React.Fragment>
-        <Grid
-          container
-          alignItems="center"
-          spacing={3}
-          justify="center"
-          direction="row"
-        >
+        <Grid container alignItems="center" spacing={3} justify="center" direction="row">
           <Grid item xs={1}>
-            <Button variant="contained" title="Add task" color="primary">
+            <Button
+              variant="contained"
+              title="Add task"
+              color="primary"
+              onClick={() => setShowDialog(taskActions.CreateTask)}
+            >
               <i className="fa fa-plus" aria-hidden="true" />
             </Button>
           </Grid>
           <Grid item xs={4}>
             {!!tasksTotalNumber && (
-              <Pagination
-                limit={limit}
-                offset={offset}
-                count={tasksTotalNumber}
-                onPageChange={onPageChange}
-              />
+              <Pagination limit={limit} offset={offset} count={tasksTotalNumber} onPageChange={onPageChange} />
             )}
           </Grid>
           <Grid item xs={4}>

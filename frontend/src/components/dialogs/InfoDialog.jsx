@@ -1,13 +1,20 @@
 import React from 'react';
-import { withStyles } from '@material-ui/core/styles';
+import { styled } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
 import Divider from '@material-ui/core/Divider';
 import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
-import DialogContent from '@material-ui/core/DialogContent';
+import MuiDialogContent from '@material-ui/core/DialogContent';
 import Typography from '@material-ui/core/Typography';
 import { DoneBadge, NotDoneBadge } from '../Badges';
 import DialogTitle from './DialogTitle';
+
+const DialogContent = styled(MuiDialogContent)({
+  display: 'flex',
+  flexDirection: 'column',
+  justifyContent: 'space-evenly',
+  minWidth: '50ch',
+});
 
 export default function TaskInfoDialog(props) {
   const { taskObject: task } = props;

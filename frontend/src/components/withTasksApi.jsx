@@ -1,3 +1,4 @@
+/* eslint-disable react/sort-comp */
 import $ from 'jquery';
 import React from 'react';
 import PropTypes from 'prop-types';
@@ -34,106 +35,131 @@ class ApiRequestor {
   };
 }
 
-const withTasksApi = (WrappedComponent) => {
-  class WithTasksApi extends React.Component {
-    static propTypes = {
-      query: PropTypes.exact({
-        searchValue: PropTypes.string.isRequired,
-        limit: PropTypes.number.isRequired,
-        offset: PropTypes.number.isRequired,
-        statusFilter: PropTypes.string.isRequired,
-      }).isRequired,
-      onTotalNumberReceived: PropTypes.func.isRequired,
-    };
+class WithTasksApi extends React.Component {
+  static propTypes = {
+    query: PropTypes.exact({
+      searchValue: PropTypes.string.isRequired,
+      limit: PropTypes.number.isRequired,
+      offset: PropTypes.number.isRequired,
+      statusFilter: PropTypes.string.isRequired,
+    }).isRequired,
+    onTotalNumberReceived: PropTypes.func.isRequired,
+  };
 
-    state = {
-      isLoaded: false,
-      taskList: [],
-      currentTotalNumber: 0,
-    };
+  state = {
+    isLoaded: false,
+    taskList: [],
+    currentTotalNumber: 0,
+  };
 
-    componentDidMount() {
+  componentDidMount() {
+    this.fetchTasks();
+  }
+
+  componentDidUpdate(prevProps) {
+    if (prevProps.query !== this.props.query) {
       this.fetchTasks();
-    }
-
-    componentDidUpdate(prevProps) {
-      if (prevProps.query !== this.props.query) {
-        this.fetchTasks();
-      }
-    }
-
-    onEditTask = (taskId, partialData, onSuccess, onError) => {
-      const api = new ApiRequestor();
-      api.patch(
-        `api/tasks/${taskId}/`,
-        partialData,
-        (task) => {
-          this.onEditSuccess(taskId, task);
-          onSuccess(task);
-        },
-        (status, error) => {
-          this.onRequestError(taskId, status, error);
-          onError(status, error);
-        },
-      );
-    };
-
-    onEditSuccess = (taskId, serverResponseTask) => {
-      const modifiedList = [...this.state.taskList];
-      const idx = modifiedList.findIndex(task => task.id === taskId);
-      const modifiedTask = modifiedList[idx];
-
-      for (const prop in serverResponseTask) {
-        modifiedTask[prop] = serverResponseTask[prop];
-      }
-
-      this.setState({ taskList: modifiedList });
-    };
-
-    onRequestError = (taskId, status, error) => {
-      console.log(status, error);
-    };
-
-    getQueryParams() {
-      const {
-        searchValue, limit, offset, statusFilter,
-      } = this.props.query;
-      const queryParams = { limit, offset };
-      if (statusFilter !== '-1') {
-        queryParams.status = statusFilter;
-      }
-      if (searchValue) {
-        queryParams.search = searchValue;
-      }
-
-      return queryParams;
-    }
-
-    fetchTasks() {
-      fetch(`api/tasks/?${qs.stringify(this.getQueryParams())}`)
-        .then(res => res.json())
-        .then(
-          (result) => {
-            this.setState(
-              {
-                isLoaded: true,
-                taskList: result.results,
-                currentTotalNumber: result.count,
-              },
-              () => this.props.onTotalNumberReceived(result.count),
-            );
-          },
-          error => this.setState({ isLoaded: false, error }),
-        );
-    }
-
-    render() {
-      return <WrappedComponent onEditTask={this.onEditTask} taskList={this.state.taskList} {...this.props} />;
     }
   }
 
-  WithTasksApi.displayName = `withTasksApi(${getDisplayName(WrappedComponent)})`;
-  return WithTasksApi;
-};
+  onEditTask = (taskId, partialData, onSuccess, onError) => {
+    const api = new ApiRequestor();
+    api.patch(
+      `/api/tasks/${taskId}/`,
+      partialData,
+      (task) => {
+        this.onEditSuccess(taskId, task);
+        onSuccess(task);
+      },
+      (status, error) => {
+        this.onRequestError(taskId, status, error);
+        onError(status, error);
+      },
+    );
+  };
 
-export default withTasksApi;
+  onCreateTask = (taskData, onSuccess, onError) => {
+    const api = new ApiRequestor();
+    api.post(
+      '/api/tasks/',
+      taskData,
+      (task) => {
+        this.onCreateSuccess(task);
+        onSuccess(task);
+      },
+      (status, error) => {
+        this.onRequestError(undefined, status, error);
+        onError(status, error);
+      },
+    );
+  };
+
+  getTaskManageFuncs() {
+    return {
+      onEditTask: this.onEditTask,
+      onCreateTask: this.onCreateTask,
+    };
+  }
+
+  getQueryParams() {
+    const {
+      searchValue, limit, offset, statusFilter,
+    } = this.props.query;
+    const queryParams = { limit, offset };
+    if (statusFilter !== '-1') {
+      queryParams.status = statusFilter;
+    }
+    if (searchValue) {
+      queryParams.search = searchValue;
+    }
+
+    return queryParams;
+  }
+
+  fetchTasks() {
+    fetch(`api/tasks/?${qs.stringify(this.getQueryParams())}`)
+      .then(res => res.json())
+      .then(
+        (result) => {
+          this.setState(
+            {
+              isLoaded: true,
+              taskList: result.results,
+              currentTotalNumber: result.count,
+            },
+            () => this.props.onTotalNumberReceived(result.count),
+          );
+        },
+        error => this.setState({ isLoaded: false, error }),
+      );
+  }
+
+  onEditSuccess = (taskId, serverResponseTask) => {
+    const modifiedList = [...this.state.taskList];
+    const idx = modifiedList.findIndex(task => task.id === taskId);
+    const modifiedTask = modifiedList[idx];
+
+    for (const prop in serverResponseTask) {
+      modifiedTask[prop] = serverResponseTask[prop];
+    }
+
+    this.setState({ taskList: modifiedList });
+  };
+
+  onCreateSuccess = (serverResponseTask) => {
+    let modifiedList = [...this.state.taskList];
+    modifiedList.push(serverResponseTask);
+    this.setState({ taskList: modifiedList });
+  }
+
+  onRequestError = (taskId, status, error) => {
+    console.log(status, error);
+  };
+
+  render() {
+    // return <WrappedComponent onEditTask={this.onEditTask} taskList={this.state.taskList} {...this.props} />;
+    return this.props.children(this.getTaskManageFuncs(), this.state.taskList);
+  }
+}
+
+export default WithTasksApi;
