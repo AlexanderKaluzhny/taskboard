@@ -58,6 +58,7 @@ class TaskListItem extends React.Component {
               </Button>
               <Button
                 title="Delete"
+                onClick={() => this.props.onTaskDeleteClick()}
               >
                 <i className="fa fa-trash" aria-hidden="true" />
               </Button>

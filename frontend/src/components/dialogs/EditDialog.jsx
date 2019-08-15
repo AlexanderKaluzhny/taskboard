@@ -6,7 +6,6 @@ import DialogTitle from './DialogTitle';
 import { renderFormikForm } from './CreateEditCommons';
 
 class EditDialog extends React.Component {
-  // TODO: show form errors
   render() {
     const { props } = this;
 

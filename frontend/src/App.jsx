@@ -12,6 +12,7 @@ import {
 import TaskInfoDialog from './components/dialogs/InfoDialog';
 import TaskEditDialog from './components/dialogs/EditDialog';
 import TaskCreateDialog from './components/dialogs/CreateDialog';
+import TaskDeleteDialog from './components/dialogs/DeleteDialog';
 import TasksStateContainer from './components/TasksStateContainer';
 
 const getQueryObject = memoizeOne((searchValue, limit, offset, statusFilter) => ({
@@ -99,28 +100,25 @@ class App extends React.Component {
     }
 
     let DialogComponent;
-    let dialogProps = {};
+    let dialogProps = {
+      closeDialog: this.onDialogClose,
+    };
 
     switch (actionType) {
+      case taskActions.DeleteTask:
+        DialogComponent = TaskDeleteDialog;
+        // TODO: withSnackbar
+        break;
       case taskActions.ShowTaskInfo:
         DialogComponent = TaskInfoDialog;
-        dialogProps = {
-          closeDialog: this.onDialogClose,
-        };
         break;
       case taskActions.EditTask:
         DialogComponent = withSnackbar(TaskEditDialog);
-        dialogProps = {
-          onEditTask: taskManageFuncs.onEditTask,
-          closeDialog: this.onDialogClose,
-        };
+        dialogProps.onEditTask = taskManageFuncs.onEditTask;
         break;
       case taskActions.CreateTask:
         DialogComponent = withSnackbar(TaskCreateDialog);
-        dialogProps = {
-          closeDialog: this.onDialogClose,
-          onCreateTask: taskManageFuncs.onCreateTask,
-        };
+        dialogProps.onCreateTask = taskManageFuncs.onCreateTask;
         break;
       default:
         DialogComponent = null;

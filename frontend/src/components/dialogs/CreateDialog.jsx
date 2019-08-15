@@ -7,7 +7,6 @@ import { TASK_STATUSES } from '../../constants';
 import { renderFormikForm } from './CreateEditCommons';
 
 class CreateDialog extends React.Component {
-  // TODO: show form errors
   render() {
     const { props } = this;
 

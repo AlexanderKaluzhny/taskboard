@@ -4,10 +4,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import qs from 'query-string';
 
-function getDisplayName(WrappedComponent) {
-  return WrappedComponent.displayName || WrappedComponent.name || 'Component';
-}
-
 class ApiRequestor {
   getRequestContext = (method, url, data, onSuccessHandler, onErrorHandler) => ({
     type: method,
@@ -16,7 +12,7 @@ class ApiRequestor {
     data,
     context: this,
     success: (obj, textStatus, jqXHR) => onSuccessHandler(obj),
-    error: (xhr, textStatus, error) => onErrorHandler(xhr.status, error),
+    error: (xhr, textStatus, error) => onErrorHandler(xhr, textStatus, error),
   });
 
   post = (url, data, onSuccessHandler, onErrorHandler) => {
@@ -35,7 +31,7 @@ class ApiRequestor {
   };
 }
 
-class WithTasksApi extends React.Component {
+class TasksStateContainer extends React.Component {
   static propTypes = {
     query: PropTypes.exact({
       searchValue: PropTypes.string.isRequired,
@@ -71,9 +67,9 @@ class WithTasksApi extends React.Component {
         this.onEditSuccess(taskId, task);
         onSuccess(task);
       },
-      (status, error) => {
-        this.onRequestError(taskId, status, error);
-        onError(status, error);
+      (xhr, textStatus, error) => {
+        this.onRequestError(taskId, xhr.status, error);
+        onError(xhr.status, error, xhr.responseJSON);
       },
     );
   };
@@ -87,9 +83,9 @@ class WithTasksApi extends React.Component {
         this.onCreateSuccess(task);
         onSuccess(task);
       },
-      (status, error) => {
-        this.onRequestError(undefined, status, error);
-        onError(status, error);
+      (xhr, textStatus, error) => {
+        this.onRequestError(undefined, xhr.status, error);
+        onError(xhr.status, error, xhr.responseJSON);
       },
     );
   };
@@ -148,7 +144,7 @@ class WithTasksApi extends React.Component {
 
   onCreateSuccess = (serverResponseTask) => {
     let modifiedList = [...this.state.taskList];
-    modifiedList.push(serverResponseTask);
+    modifiedList.unshift(serverResponseTask);
     this.setState({ taskList: modifiedList });
   }
 
@@ -157,9 +153,8 @@ class WithTasksApi extends React.Component {
   };
 
   render() {
-    // return <WrappedComponent onEditTask={this.onEditTask} taskList={this.state.taskList} {...this.props} />;
     return this.props.children(this.getTaskManageFuncs(), this.state.taskList);
   }
 }
 
-export default WithTasksApi;
+export default TasksStateContainer;
