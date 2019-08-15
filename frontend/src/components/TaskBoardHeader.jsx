@@ -24,7 +24,7 @@ class TaskBoardHeader extends React.Component {
 
     return (
       <React.Fragment>
-        <Grid container alignItems="center" spacing={3} justify="center" direction="row">
+        <Grid container alignItems="center" justify="center" direction="row">
           <Grid item xs={1}>
             <Button
               variant="contained"
