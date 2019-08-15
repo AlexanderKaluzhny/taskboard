@@ -12,7 +12,7 @@ import {
 import TaskInfoDialog from './components/dialogs/InfoDialog';
 import TaskEditDialog from './components/dialogs/EditDialog';
 import TaskCreateDialog from './components/dialogs/CreateDialog';
-import WithTaskApi from './components/withTasksApi';
+import TasksStateContainer from './components/TasksStateContainer';
 
 const getQueryObject = memoizeOne((searchValue, limit, offset, statusFilter) => ({
   searchValue,
@@ -154,7 +154,7 @@ class App extends React.Component {
             onSearchRequested={this.onSearchRequested}
             setShowDialog={this.setShowDialog}
           />
-          <WithTaskApi
+          <TasksStateContainer
             query={getQueryObject(searchValue, limit, offset, statusFilter)}
             onTotalNumberReceived={this.onTasksTotalNumberReceived}
           >
@@ -170,7 +170,7 @@ class App extends React.Component {
                 {this.getDialog(taskManageFuncs, taskList)}
               </React.Fragment>
             )}
-          </WithTaskApi>
+          </TasksStateContainer>
         </SnackbarProvider>
       </div>
     );

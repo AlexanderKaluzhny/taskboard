@@ -1,7 +1,7 @@
 /* eslint-disable react/prefer-stateless-function */
 import React from 'react';
 import { styled, makeStyles } from '@material-ui/core/styles';
-import { Form, Field } from 'formik';
+import { Form, Field, ErrorMessage } from 'formik';
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
 import FormControl from '@material-ui/core/FormControl';
@@ -16,6 +16,14 @@ export const StyledDialogContent = styled(MuiDialogContent)({
   flexDirection: 'column',
   justifyContent: 'space-evenly',
   minWidth: '50ch',
+  overflow: 'visible',
+});
+
+// moves error message closer to the input
+export const StyledErrorMessage = styled('div')({
+  margin: '-.85em 0',
+  color: 'red',
+  fontSize: '.85em',
 });
 
 const useStyles = makeStyles(theme => ({
@@ -78,6 +86,7 @@ const TaskFieldSelectStatus = ({
 };
 
 export function renderFormikForm(props) {
+  const errorText = msg => <StyledErrorMessage>{msg}</StyledErrorMessage>;
   return ({
     values, errors, dirty, status, touched, handleBlur, handleChange, handleSubmit, isSubmitting,
   }) => (
@@ -85,11 +94,11 @@ export function renderFormikForm(props) {
       <StyledDialogContent>
         {status && status.error && <div style={{ color: 'red' }}>{status.msg}</div>}
         <Field type="text" name="name" title="Name" component={TaskFieldInput} />
-        {errors.name && touched.name && <div>{errors.name}</div>}
+        <ErrorMessage name="name" render={errorText} />
         <Field type="text" name="status" title="Status" component={TaskFieldSelectStatus} />
-        {errors.status && touched.status && <div>{errors.status}</div>}
+        <ErrorMessage name="status" render={errorText} />
         <Field multiline type="text" name="description" title="Description" component={TaskFieldInput} />
-        {errors.description && touched.description && <div>{errors.description}</div>}
+        <ErrorMessage name="description" render={errorText} />
       </StyledDialogContent>
       <DialogActions>
         <Button variant="outlined" type="submit" color="primary" disabled={isSubmitting || !dirty}>

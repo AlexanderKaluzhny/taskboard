@@ -17,7 +17,7 @@ class CreateDialog extends React.Component {
           Create New Task
         </DialogTitle>
         <Formik
-          initialValues={{ status: TASK_STATUSES.NOT_DONE }}
+          initialValues={{ status: TASK_STATUSES.NOT_DONE, name: '', description: '' }}
           onSubmit={(values, actions) => {
             const { name, status, description } = values;
             props.onCreateTask(
@@ -29,12 +29,15 @@ class CreateDialog extends React.Component {
                 props.closeDialog();
               },
               /* error handler: */
-              (serverStatus, error) => {
+              (serverStatus, error, responseJSON) => {
                 actions.setSubmitting(false);
-                actions.setStatus({
-                  error: true,
-                  msg: `Error ${serverStatus}: ${error}`,
-                });
+                actions.setErrors(responseJSON);
+                if (serverStatus > 400) {
+                  actions.setStatus({
+                    error: true,
+                    msg: `Error ${serverStatus}: ${error}`,
+                  });
+                }
               },
             );
           }}

@@ -29,12 +29,15 @@ class EditDialog extends React.Component {
                 props.closeDialog();
               },
               /* error handler: */
-              (serverStatus, error) => {
+              (serverStatus, error, responseJSON) => {
                 actions.setSubmitting(false);
-                actions.setStatus({
-                  error: true,
-                  msg: `Error ${serverStatus}: ${error}`,
-                });
+                actions.setErrors(responseJSON);
+                if (serverStatus > 400) {
+                  actions.setStatus({
+                    error: true,
+                    msg: `Error ${serverStatus}: ${error}`,
+                  });
+                }
               },
             );
           }}
