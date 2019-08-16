@@ -1,19 +1,15 @@
 /* eslint-disable react/prefer-stateless-function */
 import React from 'react';
 import { Formik } from 'formik';
-import Dialog from '@material-ui/core/Dialog';
-import DialogTitle from './DialogTitle';
 import { renderFormikForm } from './CreateEditCommons';
+import TitledDialog from './TitledDialog';
 
 class EditDialog extends React.Component {
   render() {
     const { props } = this;
 
     return (
-      <Dialog open onClose={props.closeDialog} aria-labelledby="form-dialog-title">
-        <DialogTitle id="customized-dialog-title" onClose={props.closeDialog}>
-          Edit Task
-        </DialogTitle>
+      <TitledDialog title="Edit Task" {...props}>
         <Formik
           initialValues={{ ...props.taskObject }}
           onSubmit={(values, actions) => {
@@ -42,7 +38,7 @@ class EditDialog extends React.Component {
           }}
           render={renderFormikForm(props)}
         />
-      </Dialog>
+      </TitledDialog>
     );
   }
 }

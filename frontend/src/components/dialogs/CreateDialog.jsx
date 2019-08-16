@@ -1,20 +1,16 @@
 /* eslint-disable react/prefer-stateless-function */
 import React from 'react';
 import { Formik } from 'formik';
-import Dialog from '@material-ui/core/Dialog';
-import DialogTitle from './DialogTitle';
 import { TASK_STATUSES } from '../../constants';
 import { renderFormikForm } from './CreateEditCommons';
+import TitledDialog from './TitledDialog';
 
 class CreateDialog extends React.Component {
   render() {
     const { props } = this;
 
     return (
-      <Dialog open onClose={props.closeDialog} aria-labelledby="form-dialog-title">
-        <DialogTitle id="customized-dialog-title" onClose={props.closeDialog}>
-          Create New Task
-        </DialogTitle>
+      <TitledDialog title="Create New Task" {...props}>
         <Formik
           initialValues={{ status: TASK_STATUSES.NOT_DONE, name: '', description: '' }}
           onSubmit={(values, actions) => {
@@ -42,7 +38,7 @@ class CreateDialog extends React.Component {
           }}
           render={renderFormikForm(props)}
         />
-      </Dialog>
+      </TitledDialog>
     );
   }
 }
