@@ -67,6 +67,7 @@ class TaskListItem extends React.Component {
           <Button
             title="Mark as Done"
             disabled={isTaskDone}
+            onClick={() => this.props.onTaskMarkDoneClick()}
           >
             <i className="fa fa-check-circle-o" aria-hidden="true" />
           </Button>

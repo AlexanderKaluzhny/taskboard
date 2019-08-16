@@ -23,6 +23,7 @@ class TaskList extends React.Component {
                 onTaskNameClick={() => setShowDialog(taskActions.ShowTaskInfo, listItem.id)}
                 onTaskEditClick={() => setShowDialog(taskActions.EditTask, listItem.id)}
                 onTaskDeleteClick={() => setShowDialog(taskActions.DeleteTask, listItem.id)}
+                onTaskMarkDoneClick={() => setShowDialog(taskActions.TaskMarkDone, listItem.id)}
               />
             ))}
         </TaskListTable>

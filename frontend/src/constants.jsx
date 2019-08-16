@@ -13,4 +13,5 @@ export const taskActions = {
   EditTask: 2,
   CreateTask: 3,
   DeleteTask: 4,
+  TaskMarkDone: 5,
 };

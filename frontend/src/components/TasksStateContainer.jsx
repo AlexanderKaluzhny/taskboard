@@ -3,6 +3,7 @@ import $ from 'jquery';
 import React from 'react';
 import PropTypes from 'prop-types';
 import qs from 'query-string';
+import { TASK_STATUSES } from '../constants';
 
 class ApiRequestor {
   getRequestContext = (method, url, data, onSuccessHandler, onErrorHandler) => ({
@@ -105,11 +106,28 @@ class TasksStateContainer extends React.Component {
     );
   };
 
+  onTaskMarkDone = (taskId, onSuccess, onError) => {
+    const api = new ApiRequestor();
+    api.patch(
+      `/api/tasks/${taskId}/`,
+      { status: TASK_STATUSES.DONE },
+      (task) => {
+        this.onTaskMarkDoneSuccess(taskId, task);
+        onSuccess(task);
+      },
+      (xhr, textStatus, error) => {
+        this.onRequestError(taskId, xhr.status, error);
+        onError(xhr.status, error, xhr.responseJSON);
+      },
+    );
+  }
+
   getTaskManageFuncs() {
     return {
       onEditTask: this.onEditTask,
       onCreateTask: this.onCreateTask,
       onDeleteTask: this.onDeleteTask,
+      onTaskMarkDone: this.onTaskMarkDone,
     };
   }
 
@@ -170,6 +188,10 @@ class TasksStateContainer extends React.Component {
 
     modifiedList.splice(idx, 1);
     this.setState({ taskList: modifiedList });
+  }
+
+  onTaskMarkDoneSuccess = (taskId, serverResponseTask) => {
+    return this.onEditSuccess(taskId, serverResponseTask);
   }
 
   onRequestError = (taskId, status, error) => {
