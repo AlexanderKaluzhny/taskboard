@@ -106,8 +106,8 @@ class App extends React.Component {
 
     switch (actionType) {
       case taskActions.DeleteTask:
-        DialogComponent = TaskDeleteDialog;
-        // TODO: withSnackbar
+        DialogComponent = withSnackbar(TaskDeleteDialog);
+        dialogProps.onDeleteTask = taskManageFuncs.onDeleteTask;
         break;
       case taskActions.ShowTaskInfo:
         DialogComponent = TaskInfoDialog;

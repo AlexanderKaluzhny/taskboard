@@ -90,10 +90,26 @@ class TasksStateContainer extends React.Component {
     );
   };
 
+  onDeleteTask = (taskId, onSuccess, onError) => {
+    const api = new ApiRequestor();
+    api.delete(
+      `/api/tasks/${taskId}/`,
+      () => {
+        this.onDeleteSuccess(taskId);
+        onSuccess();
+      },
+      (xhr, textStatus, error) => {
+        this.onRequestError(taskId, xhr.status, error);
+        onError(xhr.status, error, xhr.responseJSON.detail);
+      },
+    );
+  };
+
   getTaskManageFuncs() {
     return {
       onEditTask: this.onEditTask,
       onCreateTask: this.onCreateTask,
+      onDeleteTask: this.onDeleteTask,
     };
   }
 
@@ -145,6 +161,14 @@ class TasksStateContainer extends React.Component {
   onCreateSuccess = (serverResponseTask) => {
     let modifiedList = [...this.state.taskList];
     modifiedList.unshift(serverResponseTask);
+    this.setState({ taskList: modifiedList });
+  }
+
+  onDeleteSuccess = (taskId) => {
+    let modifiedList = [...this.state.taskList];
+    const idx = modifiedList.findIndex(task => task.id === taskId);
+
+    modifiedList.splice(idx, 1);
     this.setState({ taskList: modifiedList });
   }
 

@@ -20,7 +20,26 @@ export default function TaskDeleteDialog(props) {
         {taskInformationBody(task)}
       </DialogContent>
       <DialogActions>
-        <Button variant="outlined" color="secondary">
+        <Button
+          variant="outlined"
+          color="secondary"
+          onClick={() => {
+            // closing the dialog early, otherwise after successful delete
+            // it will be rerendered with undefined task.
+            props.closeDialog();
+            props.onDeleteTask(
+              props.taskObject.id,
+              /* success handler: */
+              () => {
+                props.enqueueSnackbar(`Task "${task.name}" deleted.`, { variant: 'success' });
+              },
+              /* error handler: */
+              (serverStatus, error, responseText) => {
+                props.enqueueSnackbar(`Error ${serverStatus}: ${error}. ${responseText}`, { variant: 'error' });
+              },
+            );
+          }}
+        >
           Delete
         </Button>
         <Button variant="outlined" type="submit" color="primary" onClick={props.closeDialog}>

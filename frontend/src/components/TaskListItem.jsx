@@ -65,12 +65,7 @@ class TaskListItem extends React.Component {
             </React.Fragment>
           )}
           <Button
-            id="markdone-button"
-            className="submit btn btn-default"
             title="Mark as Done"
-            role="button"
-            data-toggle="modal"
-            data-target="#task-modal-form"
             disabled={isTaskDone}
           >
             <i className="fa fa-check-circle-o" aria-hidden="true" />
