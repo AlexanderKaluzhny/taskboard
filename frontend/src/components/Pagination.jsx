@@ -3,6 +3,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import ReactPaginate from 'react-paginate';
 import { makeStyles } from '@material-ui/core/styles';
+import { blue } from '@material-ui/core/colors';
 
 const useStyles = makeStyles(theme => ({
   '@global': {
@@ -30,7 +31,7 @@ const useStyles = makeStyles(theme => ({
 
     '&:active': {
       boxShadow: 'none',
-      backgroundColor: '#ee6e73',
+      backgroundColor: blue[300],
     },
   },
   pageLinkClassName: {
@@ -40,7 +41,7 @@ const useStyles = makeStyles(theme => ({
     lineHeight: '30px',
   },
   activeClassName: {
-    backgroundColor: '#ee6e73',
+    backgroundColor: blue[300],
   },
   activeLinkClassName: {
     color: '#fff',

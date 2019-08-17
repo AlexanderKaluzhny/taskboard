@@ -9,13 +9,13 @@ import MuiPaper from '@material-ui/core/Paper';
 import HeaderStatusFilterSelect from './HeaderStatusFilterSelect';
 
 const Table = styled(MuiTable)({
-  minWidth: '650',
 });
 
 const Paper = styled(MuiPaper)({
-  width: '85%',
+  width: '99%',
   margin: 'auto',
-  overflowX: 'auto',
+  maxHeight: '75vh',
+  overflow: 'auto',
 });
 
 const StyledTableCell = styled(TableCell)({
@@ -28,7 +28,7 @@ const StyledTableCell = styled(TableCell)({
 export default function (props) {
   return (
     <Paper>
-      <Table>
+      <Table size='small'>
         <TableHead>
           <TableRow>
             <StyledTableCell>Name</StyledTableCell>

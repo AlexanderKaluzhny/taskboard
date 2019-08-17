@@ -40,7 +40,7 @@ const DialogTitle = withStyles(styles)((props) => {
 });
 
 export default props => (
-  <Dialog open onClose={props.closeDialog} aria-labelledby="form-dialog-title">
+  <Dialog open onClose={props.closeDialog} transitionDuration={{ enter: 50 }} aria-labelledby="form-dialog-title">
     <DialogTitle id="customized-dialog-title" onClose={props.closeDialog}>
       {props.title}
     </DialogTitle>
