@@ -14,5 +14,9 @@ class User(AbstractUser):
     def __str__(self):
         return self.username
 
+    @property
+    def fullname(self):
+        return f'{self.first_name} {self.last_name}' if self.first_name or self.last_name else ''
+
     def get_absolute_url(self):
         return reverse('users:detail', kwargs={'username': self.username})

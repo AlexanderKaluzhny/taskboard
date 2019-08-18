@@ -27,11 +27,10 @@ const useStyles = makeStyles(theme => ({
     overflow: 'hidden',
     userSelect: 'none',
     zIndex: '1',
-    transition: '.3s ease-out',
 
     '&:active': {
       boxShadow: 'none',
-      backgroundColor: blue[300],
+      backgroundColor: blue[800],
     },
   },
   pageLinkClassName: {

@@ -41,13 +41,15 @@ export default function NavBar(props) {
           Task Board
         </Typography>
         <nav>
-          <Button
-            href="/users/bob" // TODO
-            className={classes.profile}
-          >
-            Bob
-            <AccountCircle className={classes.accountCircle} />
-          </Button>
+          {!!props.profileUrl && (
+            <Button
+              href={props.profileUrl}
+              className={classes.profile}
+            >
+              {props.fullName}
+              <AccountCircle className={classes.accountCircle} />
+            </Button>
+          )}
           <Button href="/accounts/logout/" className={classes.link}>
             Sign Out
           </Button>

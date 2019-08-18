@@ -35,6 +35,8 @@ const getQueryObject = memoizeOne((searchValue, limit, offset, statusFilter) => 
 class App extends React.Component {
   state = {
     currentUserId: null,
+    profileUrl: '',
+    fullName: '',
     tasksTotalNumber: 0,
     limit: DEFAULT_LIMIT,
     offset: DEFAULT_OFFSET,
@@ -50,7 +52,8 @@ class App extends React.Component {
           this.setState({
             tasksTotalNumber: result.tasks_total,
             currentUserId: result.current_user,
-            // TODO: currentUserName
+            profileUrl: result.profile_url,
+            fullName: result.fullname,
           });
         },
         error => this.setState({ error }),
@@ -92,6 +95,7 @@ class App extends React.Component {
   render() {
     const {
       searchValue, limit, offset, tasksTotalNumber, currentUserId, statusFilter,
+      profileUrl, fullName,
     } = this.state;
 
     const { setShowDialog, getDialog } = this.props;
@@ -100,7 +104,7 @@ class App extends React.Component {
       <div className="App">
         <ThemeProvider theme={theme}>
           <SnackbarProvider anchorOrigin={{ vertical: 'top', horizontal: 'right' }} autoHideDuration={2000}>
-            <NavBar />
+            <NavBar profileUrl={profileUrl} fullName={fullName} />
             <StyledDiv>
               <TaskBoardHeader
                 tasksTotalNumber={tasksTotalNumber}

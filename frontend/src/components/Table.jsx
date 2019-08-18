@@ -8,8 +8,7 @@ import TableRow from '@material-ui/core/TableRow';
 import MuiPaper from '@material-ui/core/Paper';
 import HeaderStatusFilterSelect from './HeaderStatusFilterSelect';
 
-const Table = styled(MuiTable)({
-});
+const Table = styled(MuiTable)({});
 
 const Paper = styled(MuiPaper)({
   width: '99%',
@@ -19,16 +18,15 @@ const Paper = styled(MuiPaper)({
 });
 
 const StyledTableCell = styled(TableCell)({
-  backgroundColor: "#f5f5f5",
-  color: "black",
+  backgroundColor: '#f5f5f5',
+  color: 'black',
   fontSize: '1rem',
 });
-
 
 export default function (props) {
   return (
     <Paper>
-      <Table size='small'>
+      <Table size="small">
         <TableHead>
           <TableRow>
             <StyledTableCell>Name</StyledTableCell>
@@ -36,10 +34,10 @@ export default function (props) {
             <StyledTableCell align="center">
               <div
                 style={{
-                  display: "flex",
-                  alignItems: "center",
-                  alignContent: "center",
-                  justifyContent: "center"
+                  display: 'flex',
+                  alignItems: 'center',
+                  alignContent: 'center',
+                  justifyContent: 'center',
                 }}
               >
                 <div>Status</div>

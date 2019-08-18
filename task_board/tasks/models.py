@@ -1,4 +1,3 @@
-from enum import IntEnum
 from django.db import models
 from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext_lazy as _
@@ -34,11 +33,11 @@ class Task(models.Model):
 
     objects = TaskQuerySet.as_manager()
 
-    def __str__(self):
-        return '%s' % (self.name)
-
     class Meta:
         ordering = ['-modified_on']
+
+    def __str__(self):
+        return '%s' % (self.name)
 
     def save(self, *args, **kwargs):
         if self.status == TaskStatuses.NOT_DONE:

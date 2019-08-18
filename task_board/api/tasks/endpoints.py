@@ -1,7 +1,7 @@
 from django_filters.rest_framework import DjangoFilterBackend
 
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
-from rest_framework.renderers import BrowsableAPIRenderer, JSONRenderer, TemplateHTMLRenderer
+from rest_framework.renderers import BrowsableAPIRenderer, JSONRenderer
 from rest_framework.pagination import LimitOffsetPagination
 from rest_framework import filters
 from rest_framework.response import Response
@@ -10,61 +10,9 @@ from rest_framework import status
 from rest_framework.permissions import IsAuthenticated, BasePermission
 
 from task_board.tasks.models import Task, TaskStatuses
-from task_board.tasks.forms import TaskForm
 from task_board.tasks.serializers import TaskSerializer
 
 from task_board.api.abstract.endpoints import TaskBoardEndpoint
-
-from .filtering import DoneTaskFilterManager
-
-
-class TemplateHTMLRendererBase(TemplateHTMLRenderer):
-    """ Base class that converts the context into a dict """
-
-    def _convert_context_into_dict(self, context):
-        if not 'results' in context and not isinstance(context, dict):
-            context = dict(
-                results=context
-            )
-        return context
-
-    def get_template_context(self, data, renderer_context):
-        # NOTE: the data input argument should be a dictionary, according
-        # to parent get_template_context()
-        # The pagination of view translates the queryset into a dict.
-
-        context = super(TemplateHTMLRendererBase, self).get_template_context(data, renderer_context)
-
-        context = self._convert_context_into_dict(context)
-        return context
-
-
-class ListViewTemplateRenderer(TemplateHTMLRendererBase, BrowsableAPIRenderer):
-    """ Renders the list of Tasks into an html. Supports searching. """
-
-    template_name = 'tasks/tasks_api_list.html'
-
-    def get_template_context(self, data, renderer_context):
-        view = renderer_context['view']
-        request = renderer_context['request']
-        response = renderer_context['response']
-
-        context = super(ListViewTemplateRenderer, self).get_template_context(data, renderer_context)
-
-        if getattr(view, 'paginator', None) and view.paginator.display_page_controls:
-            paginator = view.paginator
-        else:
-            paginator = None
-
-        context['paginator'] = paginator
-        context['filter_form'] = self.get_filter_form(data, view, request)
-        context['user'] = request.user
-        context['task_editing_form'] = TaskForm()
-        context['tasksdone_checkbox'] = view.done_filter_manager.checkbox
-        # the 'checked' attribute that will be assigned to the checkbox
-        context['tasksdone_checkbox_is_checked'] = 'checked' if view.done_filter_manager.checkbox.is_checked else ''
-
-        return context
 
 
 class PaginationSettings(LimitOffsetPagination):
@@ -85,8 +33,6 @@ class TaskListView(TaskBoardEndpoint, ListCreateAPIView):
     }
     filter_fields = ['status']
 
-    # TODO: remove DoneTaskFilterManager
-
     def get_queryset(self):
         # prefetch the User related information
         return Task.objects.all().select_related('created_by', 'accomplished_by')
@@ -102,12 +48,6 @@ class TaskListView(TaskBoardEndpoint, ListCreateAPIView):
         self.perform_create(serializer)
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
-
-
-# class TaskCreateView(CreateAPIView):
-#     serializer_class = TaskSerializer
-#     renderer_classes = (JSONRenderer, BrowsableAPIRenderer,)
-#     permission_classes = (IsAuthenticated,)
 
 
 class IsTaskOwnerOrMarkDoneOnly(BasePermission):
@@ -160,7 +100,6 @@ class IsTaskOwnerOrMarkDoneOnly(BasePermission):
 
 
 class TaskUpdateDeleteView(TaskBoardEndpoint, RetrieveUpdateDestroyAPIView):
-    # queryset = Task.objects.all()
     serializer_class = TaskSerializer
     renderer_classes = (JSONRenderer, BrowsableAPIRenderer,)
     permission_classes = (IsAuthenticated, IsTaskOwnerOrMarkDoneOnly,)

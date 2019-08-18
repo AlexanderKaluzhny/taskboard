@@ -22,22 +22,12 @@ class TasksBoardIndexView(LoginRequiredMixin, TemplateView):
     react_upstream = 'http://localhost:3000'
     cut_part = None
 
-    def cut_url(self):
-        # cut out the part of url
-        parsed = urlparse(self.request.get_full_path())
-        path = parsed.path.replace(self.cat_part, '')
-        # scheme netloc path params query fragment
-        url = urlunparse(['', '', path, None, parsed.query, parsed.fragment])
-        logger.debug(f'{self.request.path} -> {url}')
-        return url
-
     def get(self, request, *args, **kwargs):
         if not settings.DEBUG:
-            # just serve index.html as in production it has the react js scripts embedded.
+            # just serve index.html because in production it has the reactjs scripts embedded.
             return super().get(request, *args, **kwargs)
 
-        url = request.path # self.cut_url()
-
+        url = request.path
         upstream_url = self.react_upstream + url
         logger.debug(f'Proxying request to: {upstream_url}')
 
