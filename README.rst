@@ -1,37 +1,34 @@
-Task Board
-==========
+Task Board v2
+=============
 
-Multi-user list of tasks including the Add, Edit, Delete, Mark as Done functions,
-searching, filtering. UI is built on top of REST-API.
-Python/Django, Django-REST-framework, JavaScript/jQuery/Underscore.js
+Multi-user list of tasks providing the Add, Edit, Delete, Mark as Done, searching, filtering.
+Implemented in Python/Django, Django-REST-framework. Front-end of the main page of v2 is reimplemented in React.js & Material-UI.
 
-.. image:: https://img.shields.io/badge/built%20with-Cookiecutter%20Django-ff69b4.svg
-     :target: https://github.com/pydanny/cookiecutter-django/
-     :alt: Built with Cookiecutter Django
+`taskboardreact.herokuapp.com`_ (wait a little for a free dyno to wake up).
 
+v1 where front-end was implemented in Vanilla JS and Bootstrap is here `tasklisting.herokuapp.com`_
 
 :License: MIT
 :Python: 3.7.2
 :Django: 2.2.4
 
+.. image:: https://img.shields.io/badge/built%20with-Cookiecutter%20Django-ff69b4.svg
+     :target: https://github.com/pydanny/cookiecutter-django/
+     :alt: Built with Cookiecutter Django
 
-Implemented functionality
--------------------------
-
-* API based Add, Edit, Delete, Mark as 'Done' functionality.
-* Multi-user. Task ownership.
-* API based UI.
-* All the forms are displayed in the modal dialog and rendered through the Underscore.js templates.
-* Deployed to Heroku free dyno `tasklisting.herokuapp.com`_ (so wait a little of it to wake up).
-
+.. _`taskboardreact.herokuapp.com`: https://taskboardreact.herokuapp.com
 .. _`tasklisting.herokuapp.com`: https://tasklisting.herokuapp.com
 
-Possible enhancements
----------------------
+Functionality
+-------------------------
 
-* Defer loading of task description, so it would be loaded at the moment the task information form is opened.
-* Defer loading of task form templates.
-* Rich text editing for task description.
+* Add, Edit, Delete, Mark as 'Done', Searching, filtering
+* Multi-user. Task ownership
+* RESTful
+* Easy demo login with demo users
+* Deployed to Heroku free dyno `taskboardreact.herokuapp.com`_ (so wait a little for it to wake up).
+
+.. _`taskboardreact.herokuapp.com`: https://taskboardreact.herokuapp.com
 
 
 Basic Commands
