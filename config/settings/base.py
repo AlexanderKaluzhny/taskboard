@@ -199,7 +199,6 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = [
     str(APPS_DIR.path('static')),
     str(FRONTEND_DIR.path('build').path('static')),
-    str(FRONTEND_DIR.path('devBuild').path('static')),
 ]
 
 # Static Assets

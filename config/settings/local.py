@@ -37,9 +37,10 @@ CACHES = {
 # ------------------------------------------------------------------------------
 INSTALLED_APPS += ['django_extensions', ]
 
+STATICFILES_DIRS += [str(FRONTEND_DIR.path('devBuild').path('static')), ]
+
 # TESTING
 # ------------------------------------------------------------------------------
 TEST_RUNNER = 'django.test.runner.DiscoverRunner'
 
-# Your local stuff: Below this line define 3rd party library settings
-# ------------------------------------------------------------------------------
+
