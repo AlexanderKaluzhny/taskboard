@@ -5,7 +5,7 @@ from test_plus.test import TestCase
 from rest_framework.test import APIRequestFactory
 from rest_framework import status
 
-from task_board.api.tasks.views import TaskUpdateDeleteView, TaskCreateView
+from task_board.api.tasks.endpoints import TaskUpdateDeleteView, TaskListView
 from task_board.users.tests.factories import UserFactory
 from task_board.tasks import utils
 from task_board.tasks.models import Task, TaskStatuses
@@ -24,9 +24,9 @@ class TestTaskUpdateDeleteView(TestCase):
         obj = Task.objects.filter(created_by=self.user).first()
 
         response = self.patch('api-v1:task-update-delete', pk=obj.pk, data={})
-        self.response_403()
+        self.response_302()
         response = self.delete('api-v1:task-update-delete', pk=obj.pk)
-        self.response_403()
+        self.response_302()
         self.assertLoginRequired('api-v1:task-list')
 
     def test_update_accomplished_by_is_empty(self):
@@ -81,7 +81,7 @@ class TestCreateTaskView(TestCase):
         self.user = UserFactory()
         utils.create_sample_tasks(self.user)
 
-        self.view = TaskCreateView.as_view()
+        self.view = TaskListView.as_view()
 
     def test_create_task(self):
         # make sure task is created
@@ -94,7 +94,7 @@ class TestCreateTaskView(TestCase):
         json_data = json.dumps(task_data)
 
         # compose the post request, get response
-        url = self.reverse('api-v1:task-create')
+        url = self.reverse('api-v1:task-list')
         request = factory.post(url, data=json_data, content_type='application/json')
         request.user = self.user
         response = self.view(request)

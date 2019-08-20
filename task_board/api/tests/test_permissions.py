@@ -2,7 +2,7 @@ from test_plus.test import TestCase
 
 from rest_framework.test import APIRequestFactory
 
-from task_board.api.tasks.views import IsTaskOwnerOrMarkDoneOnly
+from task_board.api.tasks.endpoints import IsTaskOwnerOrMarkDoneOnly
 from task_board.users.tests.factories import UserFactory
 from task_board.tasks import utils
 
