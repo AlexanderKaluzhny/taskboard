@@ -35,12 +35,12 @@ class TaskBoardHeader extends React.Component {
         <Grid container alignItems="center" justify="flex-start" direction="row">
           <Grid item xs={1}>
             <StyledAddButton
-              variant="contained"
+              variant="outlined"
               color="primary"
               aria-label="add"
               onClick={() => setShowDialog(taskActions.CreateTask)}
             >
-              <AddIcon />
+              <AddIcon fontSize="large" />
             </StyledAddButton>
           </Grid>
           <Grid item xs={6}>

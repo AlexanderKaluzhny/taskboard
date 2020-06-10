@@ -1,85 +1,19 @@
 /* eslint-disable react/prefer-stateless-function */
 import React from 'react';
 import PropTypes from 'prop-types';
-import ReactPaginate from 'react-paginate';
-import { makeStyles } from '@material-ui/core/styles';
-import { blue } from '@material-ui/core/colors';
-
-const useStyles = makeStyles(theme => ({
-  '@global': {
-    li: {
-      listStyle: 'none',
-    },
-  },
-  containerClassName: {
-    display: 'flex',
-    flexWrap: 'wrap',
-  },
-  pageClassName: {
-    cursor: 'pointer',
-    display: 'inline-block',
-    borderRadius: '2px',
-    textAlign: 'center',
-    verticalAlign: 'top',
-    height: '30px',
-
-    position: 'relative',
-    overflow: 'hidden',
-    userSelect: 'none',
-    zIndex: '1',
-
-    '&:active': {
-      boxShadow: 'none',
-      backgroundColor: blue[800],
-    },
-  },
-  pageLinkClassName: {
-    display: 'inline-block',
-    fontSize: '1.2rem',
-    padding: '0 10px',
-    lineHeight: '30px',
-  },
-  activeClassName: {
-    backgroundColor: blue[300],
-  },
-  activeLinkClassName: {
-    color: '#fff',
-  },
-  prevNextClassName: {},
-  prevNextLinkClassName: {},
-  disabledClassName: {
-    cursor: 'default',
-    color: '#999',
-  },
-}));
+import MuiPagination from '@material-ui/lab/Pagination';
 
 function Pagination(props) {
-  const classes = useStyles();
-  const pageCount = Math.ceil(props.count / props.limit);
-  const currentPage = !!props.offset ? Math.floor(props.count / props.offset) : 0;
+  const { limit, count, onPageChange } = props;
+
+  const pageCount = Math.ceil(count / limit);
 
   return (
-    <ReactPaginate
-      forcePage={currentPage}
-      previousLabel={' ← '}
-      nextLabel={' → '}
-      breakLabel={'...'}
-      pageCount={pageCount}
-      marginPagesDisplayed={2}
-      pageRangeDisplayed={5}
-      onPageChange={props.onPageChange}
-      containerClassName={classes.containerClassName}
-      pageClassName={classes.pageClassName}
-      pageLinkClassName={classes.pageLinkClassName}
-      activeClassName={classes.activeClassName}
-      activeLinkClassName={classes.activeLinkClassName}
-      previousClassName={classes.pageClassName}
-      nextClassName={classes.pageClassName}
-      previousLinkClassName={classes.pageLinkClassName}
-      nextLinkClassName={classes.pageLinkClassName}
-      breakClassName={classes.pageClassName}
-      breakLinkClassName={classes.pageLinkClassName}
-      disabledClassName={classes.disabledClassName}
+    <MuiPagination
+      color="primary"
+      variant="outlined"
+      count={pageCount}
+      onChange={(event, page) => onPageChange(page - 1)}
     />
   );
 }

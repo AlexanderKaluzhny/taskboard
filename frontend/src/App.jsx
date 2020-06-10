@@ -1,28 +1,20 @@
 import React from 'react';
 import memoizeOne from 'memoize-one';
-import { SnackbarProvider } from 'notistack';
 import './App.css';
-import { createMuiTheme, styled } from '@material-ui/core/styles';
+import { createMuiTheme } from '@material-ui/core/styles';
 import { ThemeProvider } from '@material-ui/styles';
 import { blue } from '@material-ui/core/colors';
-import NavBar from './components/NavBar';
 import TaskBoardHeader from './components/TaskBoardHeader';
 import TaskList from './components/TaskList';
 import { DEFAULT_LIMIT, DEFAULT_OFFSET, DEFAULT_STATUS_FILTER } from './constants';
 import TasksStateContainer from './components/TasksStateContainer';
 import withDialogs from './components/withDialogs';
+import Layout from './components/Layout';
 
 const theme = createMuiTheme({
   palette: {
     primary: { main: blue[800] },
   },
-});
-
-const StyledDiv = styled('div')({
-  width: '85%',
-  margin: 'auto',
-  overflowX: 'auto',
-  padding: '1px',
 });
 
 const getQueryObject = memoizeOne((searchValue, limit, offset, statusFilter) => ({
@@ -60,8 +52,9 @@ class App extends React.Component {
       );
   }
 
-  onPageChanged = (data) => {
-    const offset = Math.ceil(data.selected * this.state.limit);
+  onPageChanged = (pageNumber) => {
+    const offset = pageNumber * this.state.limit;
+    console.log(offset);
     this.setState({ offset });
   };
 
@@ -103,36 +96,33 @@ class App extends React.Component {
     return (
       <div className="App">
         <ThemeProvider theme={theme}>
-          <SnackbarProvider anchorOrigin={{ vertical: 'top', horizontal: 'right' }} autoHideDuration={2000}>
-            <NavBar profileUrl={profileUrl} fullName={fullName} />
-            <StyledDiv>
-              <TaskBoardHeader
-                tasksTotalNumber={tasksTotalNumber}
-                limit={limit}
-                offset={offset}
-                onPageChange={this.onPageChanged}
-                onSearchRequested={this.onSearchRequested}
-                setShowDialog={setShowDialog}
-              />
-              <TasksStateContainer
-                query={getQueryObject(searchValue, limit, offset, statusFilter)}
-                onTotalNumberReceived={this.onTasksTotalNumberReceived}
-              >
-                {(taskManageFuncs, taskList) => (
-                  <React.Fragment>
-                    <TaskList
-                      taskList={taskList}
-                      currentUserId={currentUserId}
-                      statusFilter={statusFilter}
-                      onStatusFilterChanged={this.onTaskStatusFilterChanged}
-                      setShowDialog={setShowDialog}
-                    />
-                    {getDialog(taskManageFuncs, taskList)}
-                  </React.Fragment>
-                )}
-              </TasksStateContainer>
-            </StyledDiv>
-          </SnackbarProvider>
+          <Layout profileUrl={profileUrl} fullName={fullName}>
+            <TaskBoardHeader
+              tasksTotalNumber={tasksTotalNumber}
+              limit={limit}
+              offset={offset}
+              onPageChange={this.onPageChanged}
+              onSearchRequested={this.onSearchRequested}
+              setShowDialog={setShowDialog}
+            />
+            <TasksStateContainer
+              query={getQueryObject(searchValue, limit, offset, statusFilter)}
+              onTotalNumberReceived={this.onTasksTotalNumberReceived}
+            >
+              {(taskManageFuncs, taskList) => (
+                <React.Fragment>
+                  <TaskList
+                    taskList={taskList}
+                    currentUserId={currentUserId}
+                    statusFilter={statusFilter}
+                    onStatusFilterChanged={this.onTaskStatusFilterChanged}
+                    setShowDialog={setShowDialog}
+                  />
+                  {getDialog(taskManageFuncs, taskList)}
+                </React.Fragment>
+              )}
+            </TasksStateContainer>
+          </Layout>
         </ThemeProvider>
       </div>
     );
